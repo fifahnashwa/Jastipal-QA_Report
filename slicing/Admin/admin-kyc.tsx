@@ -186,22 +186,22 @@ export default function AdminKYCSlicing() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Domisili</p>
-                  <input value={selectedUser.country} readOnly className="w-full border px-3 py-2 rounded-lg bg-white"/>
+                  <input value={selectedUser.country} readOnly className="w-full border px-1 py-1 rounded-lg bg-white text-gray-900 font-medium"/>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Service Fee</p>
-                  <input value={selectedUser.fee} readOnly className="w-full border px-3 py-2 rounded-lg bg-white"/>
+                  <input value={selectedUser.fee} readOnly className="w-full border px-1 py-1 rounded-lg bg-white text-gray-900 font-medium"/>
                 </div>
               </div>
 
               <div>
                 <p className="text-xs text-gray-500 mb-1">WhatsApp</p>
-                <input value={selectedUser.phone} readOnly className="w-full border px-3 py-2 rounded-lg bg-white"/>
+                <input value={selectedUser.phone} readOnly className="w-full border px-1 py-1 rounded-lg bg-white text-gray-900 font-medium"/>
               </div>
 
               <div>
                 <p className="text-xs text-gray-500 mb-1">Bio</p>
-                <textarea value={selectedUser.bio} readOnly className="w-full border px-3 py-2 rounded-lg bg-white"/>
+                <textarea value={selectedUser.bio} readOnly className="w-full border px-1 py-1 rounded-lg bg-white text-gray-900 font-medium"/>
               </div>
             </div>
 
@@ -269,8 +269,7 @@ export default function AdminKYCSlicing() {
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-xl text-center">
 
-            <p className="mb-4">
-              {confirmType === "approve"
+<p className="mb-4 text-gray-900 font-semibold text-[16px]">              {confirmType === "approve"
                 ? "Yakin ingin menyetujui?"
                 : "Yakin ingin menolak?"}
             </p>
@@ -279,7 +278,7 @@ export default function AdminKYCSlicing() {
 
               <button
                 onClick={() => setConfirmType(null)}
-                className="px-4 py-2 border rounded-lg"
+                className="px-5 py-2 rounded-lg border border-gray-300 bg-white text-gray-800 font-medium hover:bg-gray-100 transition"
               >
                 Batal
               </button>
