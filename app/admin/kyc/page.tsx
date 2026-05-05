@@ -30,6 +30,7 @@ export default function AdminDashboard() {
   const [rejectReason, setRejectReason] = useState('')
   const [actionLoading, setActionLoading] = useState(false)
   const [actionSuccess, setActionSuccess] = useState('')
+  const [actionType, setActionType] = useState<'approve' | 'reject' | ''>('')
   const [tab, setTab] = useState<'pending' | 'approved' | 'rejected'>('pending')
   const [previewImg, setPreviewImg] = useState<string | null>(null)
 
@@ -50,6 +51,7 @@ export default function AdminDashboard() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ target_user_id: applicant.user_id, action: 'approve' }),
     })
+    setActionType('approve')
     setActionSuccess(`${applicant.users.full_name} berhasil disetujui sebagai jastiper`)
     setSelected(null)
     setActionLoading(false)
@@ -64,6 +66,7 @@ export default function AdminDashboard() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ target_user_id: applicant.user_id, action: 'reject', rejection_reason: rejectReason }),
     })
+    setActionType('reject')
     setActionSuccess(`Pengajuan ${applicant.users.full_name} ditolak`)
     setSelected(null)
     setRejectReason('')
@@ -94,7 +97,6 @@ export default function AdminDashboard() {
             className="bg-white w-full max-w-[650px] max-h-[90vh] overflow-y-auto rounded-2xl p-5 shadow-xl relative"
             onClick={e => e.stopPropagation()}
           >
-            {/* Header modal */}
             <div className="flex justify-between items-center mb-3">
               <h2 className="font-semibold text-lg text-[#0F172A]">Detail Pengajuan KYC</h2>
               <button
@@ -105,7 +107,6 @@ export default function AdminDashboard() {
               </button>
             </div>
 
-            {/* Avatar + nama */}
             <div className="flex gap-3 mb-3">
               {selected.users.avatar_url ? (
                 <img src={selected.users.avatar_url} className="w-12 h-12 rounded-full object-cover" />
@@ -120,54 +121,30 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            {/* Form fields */}
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <p className="text-[13px] text-[#64748B] mb-1">Domisili</p>
-                  <input
-                    value={selected.base_country ?? '-'}
-                    readOnly
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-[#0F172A] bg-white"
-                  />
+                  <input value={selected.base_country ?? '-'} readOnly className="w-full border border-gray-300 rounded-lg px-3 py-2 text-[#0F172A] bg-white" />
                 </div>
                 <div>
                   <p className="text-[13px] text-[#64748B] mb-1">Service Fee</p>
-                  <input
-                    value={selected.service_fee_pct ? `${selected.service_fee_pct}%` : '-'}
-                    readOnly
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-[#0F172A] bg-white"
-                  />
+                  <input value={selected.service_fee_pct ? `${selected.service_fee_pct}%` : '-'} readOnly className="w-full border border-gray-300 rounded-lg px-3 py-2 text-[#0F172A] bg-white" />
                 </div>
               </div>
-
               <div>
                 <p className="text-[13px] text-[#64748B] mb-1">WhatsApp</p>
-                <input
-                  value={selected.whatsapp_number ?? '-'}
-                  readOnly
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-[#0F172A] bg-white"
-                />
+                <input value={selected.whatsapp_number ?? '-'} readOnly className="w-full border border-gray-300 rounded-lg px-3 py-2 text-[#0F172A] bg-white" />
               </div>
-
               <div>
                 <p className="text-[13px] text-[#64748B] mb-1">Bio</p>
-                <textarea
-                  rows={2}
-                  value={selected.bio ?? '-'}
-                  readOnly
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-[#0F172A] bg-white resize-none"
-                />
+                <textarea rows={2} value={selected.bio ?? '-'} readOnly className="w-full border border-gray-300 rounded-lg px-3 py-2 text-[#0F172A] bg-white resize-none" />
               </div>
             </div>
 
-            {/* Dokumen KYC */}
             <div className="grid grid-cols-2 gap-3 mt-3">
               {selected.kyc_idcard_url ? (
-                <div
-                  className="cursor-pointer rounded-xl overflow-hidden border border-gray-200 hover:opacity-80 transition"
-                  onClick={() => setPreviewImg(selected.kyc_idcard_url)}
-                >
+                <div className="cursor-pointer rounded-xl overflow-hidden border border-gray-200 hover:opacity-80 transition" onClick={() => setPreviewImg(selected.kyc_idcard_url)}>
                   <img src={selected.kyc_idcard_url} alt="KTP" className="w-full h-24 object-cover" />
                   <p className="text-xs text-center text-[#64748B] py-1">KTP / Passport</p>
                 </div>
@@ -177,10 +154,7 @@ export default function AdminDashboard() {
                 </div>
               )}
               {selected.kyc_selfie_url ? (
-                <div
-                  className="cursor-pointer rounded-xl overflow-hidden border border-gray-200 hover:opacity-80 transition"
-                  onClick={() => setPreviewImg(selected.kyc_selfie_url)}
-                >
+                <div className="cursor-pointer rounded-xl overflow-hidden border border-gray-200 hover:opacity-80 transition" onClick={() => setPreviewImg(selected.kyc_selfie_url)}>
                   <img src={selected.kyc_selfie_url} alt="Selfie" className="w-full h-24 object-cover" />
                   <p className="text-xs text-center text-[#64748B] py-1">Selfie + KTP</p>
                 </div>
@@ -195,9 +169,7 @@ export default function AdminDashboard() {
             {selected.kyc_status === 'pending' && (
               <>
                 <div className="mt-3">
-                  <p className="text-[13px] text-[#64748B] mb-1">
-                    Alasan penolakan (wajib jika menolak)
-                  </p>
+                  <p className="text-[13px] text-[#64748B] mb-1">Alasan penolakan (wajib jika menolak)</p>
                   <input
                     placeholder="Contoh: Foto KTP buram"
                     value={rejectReason}
@@ -206,18 +178,10 @@ export default function AdminDashboard() {
                   />
                 </div>
                 <div className="flex justify-end gap-3 mt-4">
-                  <button
-                    onClick={() => handleReject(selected)}
-                    disabled={actionLoading || !rejectReason.trim()}
-                    className="px-4 py-2 bg-red-500 text-white rounded-lg disabled:opacity-40 transition"
-                  >
+                  <button onClick={() => handleReject(selected)} disabled={actionLoading || !rejectReason.trim()} className="px-4 py-2 bg-red-500 text-white rounded-lg disabled:opacity-40 transition">
                     {actionLoading ? 'Memproses...' : 'Tolak'}
                   </button>
-                  <button
-                    onClick={() => handleApprove(selected)}
-                    disabled={actionLoading}
-                    className="px-4 py-2 bg-[#14B8A6] text-white rounded-lg disabled:opacity-40 transition"
-                  >
+                  <button onClick={() => handleApprove(selected)} disabled={actionLoading} className="px-4 py-2 bg-[#14B8A6] text-white rounded-lg disabled:opacity-40 transition">
                     {actionLoading ? 'Memproses...' : 'Setujui'}
                   </button>
                 </div>
@@ -246,11 +210,29 @@ export default function AdminDashboard() {
       <div>
         <h1 className="text-[24px] font-semibold text-[#0F172A] mb-6">Verifikasi KYC</h1>
 
-        {/* Success banner */}
+        {/* Banner */}
         {actionSuccess && (
-          <div className="mb-6 bg-green-50 border border-green-200 rounded-xl px-4 py-3 flex items-center justify-between">
-            <p className="text-sm text-green-700">{actionSuccess}</p>
-            <button onClick={() => setActionSuccess('')} className="text-green-500 hover:text-green-700 ml-4">
+          <div className={`mb-6 border rounded-xl px-4 py-3 flex items-center justify-between ${
+            actionType === 'reject' ? 'bg-red-50 border-red-200' : 'bg-green-50 border-green-200'
+          }`}>
+            <div className="flex items-center gap-2">
+              {actionType === 'reject' ? (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-red-500 shrink-0">
+                  <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+                </svg>
+              ) : (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-green-500 shrink-0">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+              )}
+              <p className={`text-sm ${actionType === 'reject' ? 'text-red-700' : 'text-green-700'}`}>
+                {actionSuccess}
+              </p>
+            </div>
+            <button
+              onClick={() => { setActionSuccess(''); setActionType('') }}
+              className={`ml-4 ${actionType === 'reject' ? 'text-red-400 hover:text-red-600' : 'text-green-500 hover:text-green-700'}`}
+            >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
               </svg>
@@ -269,19 +251,15 @@ export default function AdminDashboard() {
               }`}
             >
               {t === 'pending' ? 'Menunggu' : t === 'approved' ? 'Disetujui' : 'Ditolak'}
-              {tab === t && (
-                <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#14B8A6]" />
-              )}
+              {tab === t && <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#14B8A6]" />}
             </button>
           ))}
         </div>
 
-        {/* Loading */}
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <div className="w-6 h-6 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
           </div>
-
         ) : applicants.length === 0 ? (
           <div className="text-center py-20">
             <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
@@ -290,14 +268,9 @@ export default function AdminDashboard() {
               </svg>
             </div>
             <p className="text-sm text-[#64748B]">
-              {tab === 'pending'
-                ? 'Tidak ada pengajuan yang menunggu review'
-                : tab === 'approved'
-                ? 'Belum ada jastiper yang disetujui'
-                : 'Tidak ada pengajuan yang ditolak'}
+              {tab === 'pending' ? 'Tidak ada pengajuan yang menunggu review' : tab === 'approved' ? 'Belum ada jastiper yang disetujui' : 'Tidak ada pengajuan yang ditolak'}
             </p>
           </div>
-
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {applicants.map(applicant => (
@@ -336,11 +309,7 @@ export default function AdminDashboard() {
 
                 <div className="flex justify-between items-center mt-5">
                   <span className={`text-[12px] px-4 py-1.5 rounded-full font-medium ${
-                    applicant.kyc_status === 'pending'
-                      ? 'bg-orange-100 text-orange-500'
-                      : applicant.kyc_status === 'approved'
-                      ? 'bg-green-100 text-green-600'
-                      : 'bg-red-100 text-red-500'
+                    applicant.kyc_status === 'pending' ? 'bg-orange-100 text-orange-500' : applicant.kyc_status === 'approved' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-500'
                   }`}>
                     {applicant.kyc_status === 'pending' ? 'Menunggu' : applicant.kyc_status === 'approved' ? 'Disetujui' : 'Ditolak'}
                   </span>
