@@ -16,7 +16,7 @@ type User = {
 }
 
 function formatDate(d: string) {
-  return new Date(d).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
+  return new Date(d).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
 }
 
 export default function AdminUsersPage() {
@@ -27,6 +27,7 @@ export default function AdminUsersPage() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [selected, setSelected] = useState<User | null>(null)
+  const [selectedDetail, setSelectedDetail] = useState<User | null>(null)
   const [reason, setReason] = useState('')
   const [actionLoading, setActionLoading] = useState(false)
   const [success, setSuccess] = useState('')
@@ -85,56 +86,64 @@ export default function AdminUsersPage() {
 
   return (
     <div>
-      {/* Modal */}
+
+      {/* ── CONFIRM MODAL (freeze/unfreeze) ── */}
       {selected && (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 w-full max-w-md shadow-2xl">
-            <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
-              <h2 className="text-base font-semibold text-gray-900 dark:text-white">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md">
+
+            <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+              <h2 className="text-base font-semibold text-[#0F172A]">
                 {selected.is_frozen ? 'Aktifkan Akun' : 'Bekukan Akun'}
               </h2>
-              <button onClick={() => { setSelected(null); setReason('') }} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              <button
+                onClick={() => { setSelected(null); setReason('') }}
+                className="text-gray-400 hover:text-gray-600 transition"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
               </button>
             </div>
 
             <div className="p-6 space-y-4">
+
               {/* User info */}
-              <div className="flex items-center gap-3 bg-gray-50 dark:bg-gray-800 rounded-xl p-4">
+              <div className="flex items-center gap-3 bg-gray-50 rounded-xl p-4">
                 {selected.avatar_url ? (
                   <img src={selected.avatar_url} className="w-10 h-10 rounded-full object-cover" />
                 ) : (
-                  <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-sm font-semibold text-blue-600 dark:text-blue-300 uppercase">
+                  <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-sm font-semibold text-blue-600 uppercase">
                     {selected.full_name?.[0] ?? '?'}
                   </div>
                 )}
                 <div>
-                  <p className="font-medium text-gray-900 dark:text-white text-sm">{selected.full_name}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{selected.email}</p>
+                  <p className="font-medium text-[#0F172A] text-sm">{selected.full_name}</p>
+                  <p className="text-xs text-gray-500">{selected.email}</p>
                 </div>
               </div>
 
               {selected.is_frozen ? (
-                <div className="bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3">
-                  <p className="text-xs text-yellow-700 dark:text-yellow-300">
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                  <p className="text-xs text-yellow-700">
                     Akun ini sedang dibekukan. Mengaktifkan kembali akan memungkinkan user untuk login dan menggunakan platform.
                   </p>
                 </div>
               ) : (
                 <>
-                  <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg p-3">
-                    <p className="text-xs text-red-700 dark:text-red-300">
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                    <p className="text-xs text-red-700">
                       Membekukan akun akan mencegah user login. Semua aktivitas sebagai buyer maupun jastiper akan terhenti.
                     </p>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
+                    <label className="text-sm font-medium text-gray-700 mb-1 block">
                       Alasan pembekuan <span className="text-red-400">*</span>
                     </label>
                     <textarea
                       rows={3}
                       placeholder="Contoh: Melanggar ketentuan layanan, penipuan, dll"
-                      className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm outline-none focus:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white resize-none"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-gray-400 bg-white text-gray-900 resize-none"
                       value={reason}
                       onChange={e => setReason(e.target.value)}
                     />
@@ -145,7 +154,7 @@ export default function AdminUsersPage() {
               <div className="flex gap-2">
                 <button
                   onClick={() => { setSelected(null); setReason('') }}
-                  className="flex-1 border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 rounded-lg py-2.5 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-all"
+                  className="flex-1 border border-gray-300 text-gray-600 rounded-lg py-2.5 text-sm font-medium hover:bg-gray-50 transition"
                 >
                   Batal
                 </button>
@@ -153,7 +162,7 @@ export default function AdminUsersPage() {
                   <button
                     onClick={() => handleUnfreeze(selected)}
                     disabled={actionLoading}
-                    className="flex-1 bg-green-500 hover:bg-green-600 text-white rounded-lg py-2.5 text-sm font-medium disabled:opacity-50 transition-all"
+                    className="flex-1 bg-[#14B8A6] hover:bg-[#0d9488] text-white rounded-lg py-2.5 text-sm font-medium disabled:opacity-50 transition"
                   >
                     {actionLoading ? 'Memproses...' : 'Aktifkan Kembali'}
                   </button>
@@ -161,7 +170,7 @@ export default function AdminUsersPage() {
                   <button
                     onClick={() => handleFreeze(selected)}
                     disabled={actionLoading || !reason.trim()}
-                    className="flex-1 bg-red-500 hover:bg-red-600 text-white rounded-lg py-2.5 text-sm font-medium disabled:opacity-50 transition-all"
+                    className="flex-1 bg-red-500 hover:bg-red-600 text-white rounded-lg py-2.5 text-sm font-medium disabled:opacity-50 transition"
                   >
                     {actionLoading ? 'Memproses...' : 'Bekukan Akun'}
                   </button>
@@ -172,18 +181,87 @@ export default function AdminUsersPage() {
         </div>
       )}
 
-      {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Manajemen User</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Kelola akun user platform Jastipal</p>
+      {/* ── DETAIL PROFIL MODAL ── */}
+      {selectedDetail && (
+        <div
+          className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4"
+          onClick={() => setSelectedDetail(null)}
+        >
+          <div
+            className="bg-white w-full max-w-[500px] rounded-2xl p-6 shadow-xl relative"
+            onClick={e => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setSelectedDetail(null)}
+              className="absolute right-4 top-4 text-gray-400 hover:text-gray-600 text-xl font-bold transition"
+            >
+              ✕
+            </button>
+
+            <h2 className="text-lg font-semibold text-[#0F172A] mb-4">Detail Profil</h2>
+
+            <div className="flex gap-3 mb-5">
+              {selectedDetail.avatar_url ? (
+                <img src={selectedDetail.avatar_url} className="w-12 h-12 rounded-full object-cover" />
+              ) : (
+                <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-sm font-semibold text-blue-600 uppercase">
+                  {selectedDetail.full_name?.[0] ?? '?'}
+                </div>
+              )}
+              <div>
+                <p className="font-semibold text-gray-900">{selectedDetail.full_name}</p>
+                <p className="text-sm text-gray-500">{selectedDetail.email}</p>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <p className="text-[13px] text-gray-500 mb-1">Bergabung</p>
+                <input
+                  value={formatDate(selectedDetail.created_at)}
+                  readOnly
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 bg-white"
+                />
+              </div>
+              <div>
+                <p className="text-[13px] text-gray-500 mb-1">Role</p>
+                <input
+                  value={[
+                    selectedDetail.is_admin ? 'Admin' : '',
+                    selectedDetail.is_jastiper ? 'Jastiper' : '',
+                    'Buyer',
+                  ].filter(Boolean).join(', ')}
+                  readOnly
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 bg-white"
+                />
+              </div>
+              <div>
+                <p className="text-[13px] text-gray-500 mb-1">Status Akun</p>
+                <input
+                  value={selectedDetail.is_frozen ? '❄️ Dibekukan' : '✓ Aktif'}
+                  readOnly
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 bg-white"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── HEADER ── */}
+      <div className="mb-8">
+        <h1 className="text-[24px] font-semibold text-[#0F172A]">Manajemen User</h1>
+        <p className="text-sm text-gray-500 mt-1">Kelola semua akun user platform Jastipal</p>
       </div>
 
       {/* Success toast */}
       {success && (
-        <div className="mb-5 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-xl px-4 py-3 flex items-center justify-between">
-          <p className="text-sm text-green-700 dark:text-green-300">{success}</p>
+        <div className="mb-5 bg-green-50 border border-green-200 rounded-xl px-4 py-3 flex items-center justify-between">
+          <p className="text-sm text-green-700">{success}</p>
           <button onClick={() => setSuccess('')} className="text-green-500 ml-4">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
           </button>
         </div>
       )}
@@ -196,61 +274,72 @@ export default function AdminUsersPage() {
         <input
           type="text"
           placeholder="Cari nama atau email..."
-          className="w-full pl-9 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl text-sm outline-none focus:border-gray-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+          className="w-full pl-9 pr-4 py-2.5 border border-[#E2E8F0] rounded-xl text-sm outline-none focus:border-gray-400 bg-white text-gray-900"
           value={search}
           onChange={e => { setSearch(e.target.value); fetchUsers(e.target.value) }}
         />
       </div>
 
-      {/* List */}
+      {/* ── LIST ── */}
       {loading ? (
         <div className="flex items-center justify-center py-20">
-          <div className="w-6 h-6 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
+          <div className="w-6 h-6 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {users.map(user => (
-            <div key={user.id} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4 flex items-center gap-4">
-              {/* Avatar */}
-              {user.avatar_url ? (
-                <img src={user.avatar_url} className="w-10 h-10 rounded-full object-cover shrink-0" />
-              ) : (
-                <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-sm font-semibold text-blue-600 dark:text-blue-300 uppercase shrink-0">
-                  {user.full_name?.[0] ?? '?'}
+            <div
+              key={user.id}
+              className="bg-white border border-[#E2E8F0] rounded-2xl p-6 flex items-center justify-between"
+            >
+              {/* LEFT */}
+              <div className="flex items-center gap-4">
+                {user.avatar_url ? (
+                  <img src={user.avatar_url} className="w-14 h-14 rounded-full object-cover shrink-0" />
+                ) : (
+                  <div className="w-14 h-14 rounded-full bg-blue-100 flex items-center justify-center text-base font-semibold text-blue-600 uppercase shrink-0">
+                    {user.full_name?.[0] ?? '?'}
+                  </div>
+                )}
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                    <p className="font-semibold text-[#0F172A] text-lg">{user.full_name}</p>
+                    {user.is_admin && (
+                      <span className="text-xs px-2 py-0.5 bg-red-100 text-red-600 rounded-full font-medium">Admin</span>
+                    )}
+                    {user.is_jastiper && (
+                      <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-600 rounded-full font-medium">Jastiper</span>
+                    )}
+                    {user.is_frozen && (
+                      <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full font-medium">❄️ Frozen</span>
+                    )}
+                  </div>
+                  <p className="text-sm text-gray-500 mb-1">{user.email}</p>
+                  <p className="text-sm text-gray-400">Bergabung {formatDate(user.created_at)}</p>
                 </div>
-              )}
-
-              {/* Info */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{user.full_name}</p>
-                  {user.is_admin && (
-                    <span className="text-xs px-2 py-0.5 bg-red-100 dark:bg-red-950 text-red-600 dark:text-red-400 rounded-full font-medium">Admin</span>
-                  )}
-                  {user.is_jastiper && (
-                    <span className="text-xs px-2 py-0.5 bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 rounded-full font-medium">Jastiper</span>
-                  )}
-                  {user.is_frozen && (
-                    <span className="text-xs px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 rounded-full font-medium">❄️ Frozen</span>
-                  )}
-                </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user.email}</p>
-                <p className="text-xs text-gray-400 mt-0.5">Bergabung {formatDate(user.created_at)}</p>
               </div>
 
-              {/* Action */}
-              {!user.is_admin && (
+              {/* RIGHT */}
+              <div className="flex items-center gap-3 shrink-0">
+                {!user.is_admin && (
+                  <button
+                    onClick={() => { setSelected(user); setReason('') }}
+                    className={`px-5 py-2 rounded-lg font-medium transition ${
+                      user.is_frozen
+                        ? 'border border-[#14B8A6] text-[#14B8A6] hover:bg-teal-50'
+                        : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
+                    }`}
+                  >
+                    {user.is_frozen ? 'Aktifkan' : 'Bekukan'}
+                  </button>
+                )}
                 <button
-                  onClick={() => { setSelected(user); setReason('') }}
-                  className={`shrink-0 text-xs px-3 py-1.5 rounded-lg font-medium transition-all ${
-                    user.is_frozen
-                      ? 'bg-green-100 dark:bg-green-950 text-green-600 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-900'
-                      : 'bg-red-100 dark:bg-red-950 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900'
-                  }`}
+                  onClick={() => setSelectedDetail(user)}
+                  className="px-5 py-2 bg-[#14B8A6] text-white rounded-lg font-medium hover:bg-[#0d9488] transition"
                 >
-                  {user.is_frozen ? 'Aktifkan' : 'Bekukan'}
+                  Lihat
                 </button>
-              )}
+              </div>
             </div>
           ))}
         </div>
