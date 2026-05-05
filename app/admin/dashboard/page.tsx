@@ -48,81 +48,98 @@ export default function AdminDashboardPage() {
   }, [])
 
   return (
-    <div>
-      <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Admin Dashboard</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Overview platform Jastipal</p>
-      </div>
+    <div className="min-h-screen bg-[#F9FAFB]">
+      <div className="max-w-[1280px] mx-auto px-6 py-10 w-full">
 
-      {loading ? (
-        <div className="flex items-center justify-center py-20">
-          <div className="w-6 h-6 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
+        {/* HEADER */}
+        <div className="mb-8">
+          <h1 className="text-[24px] font-semibold text-[#0F172A]">Admin Dashboard</h1>
+          <p className="text-[14px] text-[#64748B] mt-1">Overview platform Jastipal</p>
         </div>
-      ) : (
-        <div className="space-y-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              { label: 'KYC Menunggu', value: stats.pendingKyc, color: 'text-yellow-600 dark:text-yellow-400', bg: 'bg-yellow-50 dark:bg-yellow-950', href: '/admin/kyc', urgent: stats.pendingKyc > 0 },
-              { label: 'Bukti Transfer', value: stats.pendingPayment, color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-950', href: '/admin/payments', urgent: stats.pendingPayment > 0 },
-              { label: 'Disputes', value: stats.pendingDisputes, color: 'text-red-600 dark:text-red-400', bg: 'bg-red-50 dark:bg-red-950', href: '/admin/disputes', urgent: stats.pendingDisputes > 0 },
-              { label: 'Total User', value: stats.totalUsers, color: 'text-gray-600 dark:text-gray-400', bg: 'bg-gray-50 dark:bg-gray-800', href: null, urgent: false },
-              { label: 'Order Aktif', value: stats.activeOrders, color: 'text-green-600 dark:text-green-400', bg: 'bg-green-50 dark:bg-green-950', href: null, urgent: false },
-            ].map(card => (
-              <div
-                key={card.label}
-                onClick={() => card.href && router.push(card.href)}
-                className={`${card.bg} rounded-xl p-5 ${card.href ? 'cursor-pointer hover:opacity-90 transition-all' : ''} ${card.urgent ? 'ring-2 ring-red-400' : ''}`}
-              >
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{card.label}</p>
-                <p className={`text-3xl font-bold ${card.color}`}>{card.value}</p>
-                {card.urgent && <p className="text-xs text-red-500 mt-1 font-medium">Perlu ditindak</p>}
-              </div>
-            ))}
+
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="w-6 h-6 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
           </div>
+        ) : (
+          <div className="space-y-10">
 
-          <div>
-            <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">Aksi Cepat</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <button onClick={() => router.push('/admin/kyc')} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4 text-left hover:border-gray-300 dark:hover:border-gray-600 transition-all flex items-center gap-4">
-                <div className="w-10 h-10 rounded-xl bg-yellow-100 dark:bg-yellow-950 flex items-center justify-center shrink-0">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-yellow-600 dark:text-yellow-400">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-                  </svg>
+            {/* STATS */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {[
+                { label: 'KYC Menunggu', value: stats.pendingKyc, href: '/admin/kyc', urgent: stats.pendingKyc > 0 },
+                { label: 'Bukti Transfer', value: stats.pendingPayment, href: '/admin/payments', urgent: stats.pendingPayment > 0 },
+                { label: 'Disputes', value: stats.pendingDisputes, href: '/admin/disputes', urgent: stats.pendingDisputes > 0 },
+                { label: 'Total User', value: stats.totalUsers, href: null, urgent: false },
+                { label: 'Order Aktif', value: stats.activeOrders, href: null, urgent: false },
+              ].map(card => (
+                <div
+                  key={card.label}
+                  onClick={() => card.href && router.push(card.href)}
+                  className={`bg-white border rounded-[12px] px-5 py-4 ${card.href ? 'cursor-pointer hover:border-teal-400 hover:shadow-sm transition' : ''} ${card.urgent ? 'border-red-400 ring-2 ring-red-400' : 'border-[#E2E8F0]'}`}
+                >
+                  <p className="text-[14px] text-[#64748B]">{card.label}</p>
+                  <h2 className="text-[28px] font-semibold mt-2 text-[#0F172A]">{card.value}</h2>
+                  {card.urgent && <p className="text-xs text-red-500 mt-1 font-medium">Perlu ditindak</p>}
                 </div>
-                <div>
-                  <p className="text-sm font-semibold text-gray-900 dark:text-white">Verifikasi KYC</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{stats.pendingKyc} pengajuan menunggu</p>
-                </div>
-              </button>
-
-              <button onClick={() => router.push('/admin/payments')} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4 text-left hover:border-gray-300 dark:hover:border-gray-600 transition-all flex items-center gap-4">
-                <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-950 flex items-center justify-center shrink-0">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-blue-600 dark:text-blue-400">
-                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>
-                  </svg>
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-gray-900 dark:text-white">Verifikasi Pembayaran</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{stats.pendingPayment} bukti transfer menunggu</p>
-                </div>
-              </button>
-
-              <button onClick={() => router.push('/admin/disputes')} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4 text-left hover:border-gray-300 dark:hover:border-gray-600 transition-all flex items-center gap-4">
-                <div className="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-950 flex items-center justify-center shrink-0">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-red-600 dark:text-red-400">
-                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-                    <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-                  </svg>
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-gray-900 dark:text-white">Disputes</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{stats.pendingDisputes} dispute menunggu</p>
-                </div>
-              </button>
+              ))}
             </div>
+
+            {/* AKSI CEPAT */}
+            <div>
+              <h2 className="text-[16px] font-semibold text-[#0F172A] mb-4">Aksi Cepat</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-7">
+
+                {/* KYC */}
+                <div
+                  onClick={() => router.push('/admin/kyc')}
+                  className="bg-white border border-[#E2E8F0] rounded-[12px] p-6 flex flex-col hover:border-teal-400 hover:shadow-sm hover:scale-[1.01] transition cursor-pointer"
+                >
+                  <div className="w-12 h-12 bg-[#14B8A6] rounded-[10px] flex items-center justify-center mb-4">
+                    <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
+                    </svg>
+                  </div>
+                  <p className="font-semibold text-[#0F172A] text-[16px]">Verifikasi KYC</p>
+                  <p className="text-[14px] text-[#64748B] mt-1">{stats.pendingKyc} pengajuan menunggu</p>
+                </div>
+
+                {/* PAYMENT */}
+                <div
+                  onClick={() => router.push('/admin/payments')}
+                  className="bg-white border border-[#E2E8F0] rounded-[12px] p-6 flex flex-col hover:border-teal-400 hover:shadow-sm hover:scale-[1.01] transition cursor-pointer"
+                >
+                  <div className="w-12 h-12 bg-[#14B8A6] rounded-[10px] flex items-center justify-center mb-4">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <rect x="2" y="5" width="20" height="14" rx="2" />
+                      <path d="M2 10h20" />
+                    </svg>
+                  </div>
+                  <p className="font-semibold text-[#0F172A] text-[16px]">Verifikasi Pembayaran</p>
+                  <p className="text-[14px] text-[#64748B] mt-1">{stats.pendingPayment} bukti transfer menunggu</p>
+                </div>
+
+                {/* DISPUTES */}
+                <div
+                  onClick={() => router.push('/admin/disputes')}
+                  className="bg-white border border-[#E2E8F0] rounded-[12px] p-6 flex flex-col hover:border-teal-400 hover:shadow-sm hover:scale-[1.01] transition cursor-pointer"
+                >
+                  <div className="w-12 h-12 bg-[#14B8A6] rounded-[10px] flex items-center justify-center mb-4">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                      <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                  </div>
+                  <p className="font-semibold text-[#0F172A] text-[16px]">Disputes</p>
+                  <p className="text-[14px] text-[#64748B] mt-1">{stats.pendingDisputes} dispute menunggu</p>
+                </div>
+
+              </div>
+            </div>
+
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }
