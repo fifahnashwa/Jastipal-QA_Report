@@ -72,7 +72,7 @@ export default function AdminDashboard() {
   }
 
   return (
-   <div className="py-6 min-h-screen">
+    <div className="py-6 min-h-screen">
 
       {/* ── IMAGE PREVIEW MODAL ── */}
       {previewImg && (
@@ -80,11 +80,7 @@ export default function AdminDashboard() {
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
           onClick={() => setPreviewImg(null)}
         >
-          <img
-            src={previewImg}
-            alt="preview"
-            className="max-w-full max-h-[90vh] rounded-xl object-contain"
-          />
+          <img src={previewImg} alt="preview" className="max-w-full max-h-[90vh] rounded-xl object-contain" />
         </div>
       )}
 
@@ -95,11 +91,11 @@ export default function AdminDashboard() {
           onClick={() => { setSelected(null); setRejectReason('') }}
         >
           <div
-            className="bg-white w-full max-w-[650px] max-h-[90vh] overflow-y-auto rounded-2xl p-6 shadow-xl relative"
+            className="bg-white w-full max-w-[650px] max-h-[90vh] overflow-y-auto rounded-2xl p-5 shadow-xl relative"
             onClick={e => e.stopPropagation()}
           >
             {/* Header modal */}
-            <div className="flex justify-between items-center mb-4">
+            <div className="flex justify-between items-center mb-3">
               <h2 className="font-semibold text-lg text-[#0F172A]">Detail Pengajuan KYC</h2>
               <button
                 onClick={() => { setSelected(null); setRejectReason('') }}
@@ -110,7 +106,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Avatar + nama */}
-            <div className="flex gap-3 mb-5">
+            <div className="flex gap-3 mb-3">
               {selected.users.avatar_url ? (
                 <img src={selected.users.avatar_url} className="w-12 h-12 rounded-full object-cover" />
               ) : (
@@ -125,8 +121,8 @@ export default function AdminDashboard() {
             </div>
 
             {/* Form fields */}
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
                 <div>
                   <p className="text-[13px] text-[#64748B] mb-1">Domisili</p>
                   <input
@@ -157,6 +153,7 @@ export default function AdminDashboard() {
               <div>
                 <p className="text-[13px] text-[#64748B] mb-1">Bio</p>
                 <textarea
+                  rows={2}
                   value={selected.bio ?? '-'}
                   readOnly
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-[#0F172A] bg-white resize-none"
@@ -165,17 +162,17 @@ export default function AdminDashboard() {
             </div>
 
             {/* Dokumen KYC */}
-            <div className="grid grid-cols-2 gap-4 mt-5">
+            <div className="grid grid-cols-2 gap-3 mt-3">
               {selected.kyc_idcard_url ? (
                 <div
                   className="cursor-pointer rounded-xl overflow-hidden border border-gray-200 hover:opacity-80 transition"
                   onClick={() => setPreviewImg(selected.kyc_idcard_url)}
                 >
-                  <img src={selected.kyc_idcard_url} alt="KTP" className="w-full h-28 object-cover" />
-                  <p className="text-xs text-center text-[#64748B] py-1.5">KTP / Passport</p>
+                  <img src={selected.kyc_idcard_url} alt="KTP" className="w-full h-24 object-cover" />
+                  <p className="text-xs text-center text-[#64748B] py-1">KTP / Passport</p>
                 </div>
               ) : (
-                <div className="rounded-xl border border-dashed border-gray-200 h-28 flex items-center justify-center">
+                <div className="rounded-xl border border-dashed border-gray-200 h-24 flex items-center justify-center">
                   <p className="text-xs text-gray-400">Tidak ada foto</p>
                 </div>
               )}
@@ -184,11 +181,11 @@ export default function AdminDashboard() {
                   className="cursor-pointer rounded-xl overflow-hidden border border-gray-200 hover:opacity-80 transition"
                   onClick={() => setPreviewImg(selected.kyc_selfie_url)}
                 >
-                  <img src={selected.kyc_selfie_url} alt="Selfie" className="w-full h-28 object-cover" />
-                  <p className="text-xs text-center text-[#64748B] py-1.5">Selfie + KTP</p>
+                  <img src={selected.kyc_selfie_url} alt="Selfie" className="w-full h-24 object-cover" />
+                  <p className="text-xs text-center text-[#64748B] py-1">Selfie + KTP</p>
                 </div>
               ) : (
-                <div className="rounded-xl border border-dashed border-gray-200 h-28 flex items-center justify-center">
+                <div className="rounded-xl border border-dashed border-gray-200 h-24 flex items-center justify-center">
                   <p className="text-xs text-gray-400">Tidak ada foto</p>
                 </div>
               )}
@@ -197,7 +194,7 @@ export default function AdminDashboard() {
             {/* Action: pending */}
             {selected.kyc_status === 'pending' && (
               <>
-                <div className="mt-4">
+                <div className="mt-3">
                   <p className="text-[13px] text-[#64748B] mb-1">
                     Alasan penolakan (wajib jika menolak)
                   </p>
@@ -208,7 +205,7 @@ export default function AdminDashboard() {
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 text-[#0F172A] placeholder-gray-400 outline-none focus:border-gray-400"
                   />
                 </div>
-                <div className="flex justify-end gap-3 mt-5">
+                <div className="flex justify-end gap-3 mt-4">
                   <button
                     onClick={() => handleReject(selected)}
                     disabled={actionLoading || !rejectReason.trim()}
@@ -229,14 +226,14 @@ export default function AdminDashboard() {
 
             {/* Action: approved */}
             {selected.kyc_status === 'approved' && (
-              <div className="mt-5 bg-green-100 border border-green-200 text-green-700 px-4 py-3 rounded-xl">
+              <div className="mt-4 bg-green-100 border border-green-200 text-green-700 px-4 py-3 rounded-xl">
                 ✓ Sudah disetujui sebagai jastiper
               </div>
             )}
 
             {/* Action: rejected */}
             {selected.kyc_status === 'rejected' && (
-              <div className="mt-5 bg-red-100 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
+              <div className="mt-4 bg-red-100 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
                 <p className="text-xs font-medium mb-1">Alasan penolakan:</p>
                 <p className="text-sm">{selected.kyc_rejection_reason ?? '-'}</p>
               </div>
@@ -285,7 +282,6 @@ export default function AdminDashboard() {
             <div className="w-6 h-6 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
           </div>
 
-        /* Empty state */
         ) : applicants.length === 0 ? (
           <div className="text-center py-20">
             <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
@@ -302,7 +298,6 @@ export default function AdminDashboard() {
             </p>
           </div>
 
-        /* GRID CARDS */
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {applicants.map(applicant => (
@@ -311,7 +306,6 @@ export default function AdminDashboard() {
                 className="bg-white border border-[#E2E8F0] rounded-2xl px-6 py-5 hover:border-teal-300 hover:shadow-sm transition cursor-pointer"
                 onClick={() => setSelected(applicant)}
               >
-                {/* TOP: avatar + nama + divider */}
                 <div className="flex justify-between items-start">
                   <div className="flex gap-4">
                     {applicant.users.avatar_url ? (
@@ -322,34 +316,24 @@ export default function AdminDashboard() {
                       </div>
                     )}
                     <div className="min-w-0">
-                      <p className="text-[18px] font-semibold text-[#0F172A] truncate">
-                        {applicant.users.full_name}
-                      </p>
-                      <p className="text-[14px] text-[#64748B] truncate">
-                        {applicant.users.email}
-                      </p>
+                      <p className="text-[18px] font-semibold text-[#0F172A] truncate">{applicant.users.full_name}</p>
+                      <p className="text-[14px] text-[#64748B] truncate">{applicant.users.email}</p>
                     </div>
                   </div>
                   <div className="w-[1px] h-10 bg-[#E2E8F0] flex-shrink-0 ml-3" />
                 </div>
 
-                {/* INFO BOX */}
                 <div className="mt-4 bg-[#F1F5F9] rounded-2xl px-5 py-4 flex justify-between">
                   <div>
                     <p className="text-[13px] text-gray-500 mb-1">Domisili</p>
-                    <p className="text-[15px] font-semibold text-gray-900">
-                      {applicant.base_country ?? '-'}
-                    </p>
+                    <p className="text-[15px] font-semibold text-gray-900">{applicant.base_country ?? '-'}</p>
                   </div>
                   <div>
                     <p className="text-[13px] text-gray-500 mb-1">Service Fee</p>
-                    <p className="text-[15px] font-semibold text-gray-900">
-                      Fee {applicant.service_fee_pct ? `${applicant.service_fee_pct}%` : '-'}
-                    </p>
+                    <p className="text-[15px] font-semibold text-gray-900">Fee {applicant.service_fee_pct ? `${applicant.service_fee_pct}%` : '-'}</p>
                   </div>
                 </div>
 
-                {/* BOTTOM: badge + lihat detail */}
                 <div className="flex justify-between items-center mt-5">
                   <span className={`text-[12px] px-4 py-1.5 rounded-full font-medium ${
                     applicant.kyc_status === 'pending'
@@ -360,9 +344,7 @@ export default function AdminDashboard() {
                   }`}>
                     {applicant.kyc_status === 'pending' ? 'Menunggu' : applicant.kyc_status === 'approved' ? 'Disetujui' : 'Ditolak'}
                   </span>
-                  <span className="text-[14px] font-medium text-[#14B8A6]">
-                    Lihat Detail →
-                  </span>
+                  <span className="text-[14px] font-medium text-[#14B8A6]">Lihat Detail →</span>
                 </div>
               </div>
             ))}

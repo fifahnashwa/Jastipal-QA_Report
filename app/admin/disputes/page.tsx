@@ -234,14 +234,14 @@ export default function AdminDisputesPage() {
                     disabled={actionLoading || !resolution.trim()}
                     className="bg-blue-500 hover:bg-blue-600 text-white rounded-lg py-2.5 text-sm font-medium disabled:opacity-50 transition"
                   >
-                    {actionLoading ? 'Memproses...' : '💰 Refund ke Buyer'}
+                    {actionLoading ? 'Memproses...' : 'Refund ke Buyer'}
                   </button>
                   <button
                     onClick={() => handleResolve(selected, 'release')}
                     disabled={actionLoading || !resolution.trim()}
                     className="bg-[#14B8A6] hover:bg-[#0d9488] text-white rounded-lg py-2.5 text-sm font-medium disabled:opacity-50 transition"
                   >
-                    {actionLoading ? 'Memproses...' : '✓ Cairkan ke Jastiper'}
+                    {actionLoading ? 'Memproses...' : 'Cairkan ke Jastiper'}
                   </button>
                 </div>
                 <button
