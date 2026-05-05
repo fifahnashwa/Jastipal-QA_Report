@@ -48,7 +48,6 @@ export default function AdminPaymentsPage() {
   async function fetchPayments() {
     setLoading(true)
 
-    // ambil escrow yang sudah ada bukti transfer
     const { data: escrowData } = await supabase
       .from('escrow_transactions')
       .select('id, order_id, amount_idr, payment_method, payment_proof_url, paid_at, status, admin_note')
@@ -62,14 +61,12 @@ export default function AdminPaymentsPage() {
       return
     }
 
-    // ambil order info terpisah
     const orderIds = escrowData.map((e: any) => e.order_id)
     const { data: ordersData } = await supabase
       .from('orders')
       .select('id, product_name, flow_type, delivery_pref, buyer_id, jastiper_id')
       .in('id', orderIds)
 
-    // ambil buyer dan jastiper info
     const userIds = [...new Set([
       ...(ordersData ?? []).map((o: any) => o.buyer_id),
       ...(ordersData ?? []).map((o: any) => o.jastiper_id),
@@ -104,14 +101,12 @@ export default function AdminPaymentsPage() {
   async function handleApprove(payment: PaymentItem) {
     setActionLoading(true)
 
-    // update escrow jadi released
     await supabase.from('escrow_transactions').update({
       status: 'released',
       released_at: new Date().toISOString(),
       admin_note: adminNote || null,
     }).eq('id', payment.id)
 
-    // update order jadi processing
     await supabase.from('orders').update({
       status: 'processing',
     }).eq('id', payment.order_id)
@@ -127,13 +122,11 @@ export default function AdminPaymentsPage() {
     if (!adminNote.trim()) return
     setActionLoading(true)
 
-    // update escrow jadi refunded
     await supabase.from('escrow_transactions').update({
       status: 'refunded',
       admin_note: adminNote,
     }).eq('id', payment.id)
 
-    // update order jadi cancelled
     await supabase.from('orders').update({
       status: 'cancelled',
     }).eq('id', payment.order_id)
@@ -146,8 +139,9 @@ export default function AdminPaymentsPage() {
   }
 
   return (
-    <div>
-      {/* Image preview modal */}
+    <div className="py-10">
+
+      {/* ── IMAGE PREVIEW MODAL ── */}
       {previewImg && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
@@ -158,213 +152,260 @@ export default function AdminPaymentsPage() {
         </div>
       )}
 
-      {/* Detail modal */}
+      {/* ── DETAIL MODAL ── */}
       {selected && (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl">
-            <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
-              <h2 className="text-base font-semibold text-gray-900 dark:text-white">Detail Bukti Transfer</h2>
-              <button
-                onClick={() => { setSelected(null); setAdminNote('') }}
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-all"
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-              </button>
+        <div
+          className="fixed inset-0 bg-black/40 flex items-center justify-center z-40 p-4"
+          onClick={() => { setSelected(null); setAdminNote('') }}
+        >
+          <div
+            className="bg-white w-full max-w-[600px] max-h-[90vh] overflow-y-auto rounded-2xl p-6 shadow-xl relative"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Close */}
+            <button
+              onClick={() => { setSelected(null); setAdminNote('') }}
+              className="absolute right-4 top-4 text-gray-400 hover:text-gray-700 text-xl font-bold transition"
+            >
+              ✕
+            </button>
+
+            <h2 className="text-lg font-semibold text-[#0F172A] mb-4">Detail Bukti Transfer</h2>
+
+            {/* Buyer info */}
+            <div className="mb-4">
+              <p className="font-semibold text-[#0F172A]">{selected.order?.buyer?.full_name ?? '-'}</p>
+              <p className="text-sm text-gray-500">{selected.order?.buyer?.email ?? ''}</p>
             </div>
 
-            <div className="p-6 space-y-5">
-              {/* Order info */}
-              <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 space-y-2">
-                <p className="text-sm font-semibold text-gray-900 dark:text-white">{selected.order?.product_name ?? '-'}</p>
-                <div className="grid grid-cols-2 gap-2 text-xs text-gray-500 dark:text-gray-400">
-                  <div>
-                    <p className="mb-0.5">Buyer</p>
-                    <p className="font-medium text-gray-700 dark:text-gray-300">{selected.order?.buyer?.full_name ?? '-'}</p>
-                    <p>{selected.order?.buyer?.email ?? ''}</p>
-                  </div>
-                  <div>
-                    <p className="mb-0.5">Jastiper</p>
-                    <p className="font-medium text-gray-700 dark:text-gray-300">{selected.order?.jastiper?.full_name ?? '-'}</p>
-                  </div>
-                </div>
+            {/* Buyer + Jastiper */}
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <p className="text-gray-400 mb-1">Buyer</p>
+                <input
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-[#0F172A] bg-white"
+                  value={selected.order?.buyer?.full_name ?? '-'}
+                  readOnly
+                />
               </div>
-
-              {/* Payment info */}
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-500 dark:text-gray-400">Total dibayar</span>
-                  <span className="font-bold text-gray-900 dark:text-white">{formatRupiah(selected.amount_idr)}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-500 dark:text-gray-400">Metode</span>
-                  <span className="text-gray-700 dark:text-gray-300">{selected.payment_method ?? '-'}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-500 dark:text-gray-400">Waktu transfer</span>
-                  <span className="text-gray-700 dark:text-gray-300">{selected.paid_at ? formatDate(selected.paid_at) : '-'}</span>
-                </div>
+              <div>
+                <p className="text-gray-400 mb-1">Jastiper</p>
+                <input
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-[#0F172A] bg-white"
+                  value={selected.order?.jastiper?.full_name ?? '-'}
+                  readOnly
+                />
               </div>
+            </div>
 
-              {/* Bukti transfer */}
-              {selected.payment_proof_url && (
-                <div>
-                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wide">Bukti Transfer</p>
-                  <div
-                    className="cursor-pointer rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:opacity-90 transition-all"
-                    onClick={() => setPreviewImg(selected.payment_proof_url)}
-                  >
-                    <img
-                      src={selected.payment_proof_url}
-                      alt="Bukti transfer"
-                      className="w-full h-48 object-cover"
-                    />
-                    <p className="text-xs text-center text-gray-500 dark:text-gray-400 py-2">Klik untuk perbesar</p>
-                  </div>
-                </div>
-              )}
+            {/* Detail pembayaran */}
+            <div className="mt-5 text-sm space-y-3">
+              <div className="flex justify-between">
+                <span className="text-gray-400">Total dibayar</span>
+                <span className="font-semibold text-[#0F172A]">{formatRupiah(selected.amount_idr)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Metode</span>
+                <span className="font-semibold text-[#0F172A]">{selected.payment_method ?? '-'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Waktu transfer</span>
+                <span className="font-semibold text-[#0F172A]">{selected.paid_at ? formatDate(selected.paid_at) : '-'}</span>
+              </div>
+            </div>
 
-              {/* Admin note */}
-              {tab === 'pending' && (
-                <div>
-                  <label className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 block uppercase tracking-wide">
-                    Catatan admin (opsional untuk approve, wajib untuk tolak)
-                  </label>
-                  <textarea
-                    rows={2}
-                    placeholder="Contoh: Nominal tidak sesuai, transfer beda bank, dll"
-                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm outline-none focus:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white resize-none"
-                    value={adminNote}
-                    onChange={e => setAdminNote(e.target.value)}
+            {/* Bukti transfer image */}
+            {selected.payment_proof_url && (
+              <div className="mt-5">
+                <p className="text-sm text-gray-400 mb-2">Bukti Transfer</p>
+                <div
+                  className="cursor-pointer rounded-xl overflow-hidden border border-gray-200 hover:opacity-90 transition"
+                  onClick={() => setPreviewImg(selected.payment_proof_url)}
+                >
+                  <img
+                    src={selected.payment_proof_url}
+                    alt="Bukti transfer"
+                    className="w-full h-48 object-cover"
                   />
+                  <p className="text-center text-sm text-gray-500 py-2">Klik untuk Perbesar</p>
                 </div>
-              )}
+              </div>
+            )}
 
-              {/* Existing admin note (approved/rejected) */}
-              {tab !== 'pending' && selected.admin_note && (
-                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Catatan admin</p>
-                  <p className="text-sm text-gray-700 dark:text-gray-300">{selected.admin_note}</p>
-                </div>
-              )}
+            {/* Catatan admin - pending */}
+            {tab === 'pending' && (
+              <div className="mt-4">
+                <p className="text-sm text-gray-400 mb-1">
+                  Catatan (opsional untuk approve, wajib untuk tolak)
+                </p>
+                <input
+                  value={adminNote}
+                  onChange={e => setAdminNote(e.target.value)}
+                  placeholder="Contoh: Nominal tidak sesuai"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-[#0F172A] placeholder-gray-400 outline-none focus:border-gray-400"
+                />
+              </div>
+            )}
 
-              {/* Actions */}
-              {tab === 'pending' && (
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleReject(selected)}
-                    disabled={actionLoading || !adminNote.trim()}
-                    className="flex-1 border border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 rounded-lg py-2.5 text-sm font-medium hover:bg-red-50 dark:hover:bg-red-950 disabled:opacity-40 transition-all"
-                  >
-                    {actionLoading ? 'Memproses...' : 'Tolak'}
-                  </button>
-                  <button
-                    onClick={() => handleApprove(selected)}
-                    disabled={actionLoading}
-                    className="flex-1 bg-green-500 hover:bg-green-600 text-white rounded-lg py-2.5 text-sm font-medium disabled:opacity-40 transition-all"
-                  >
-                    {actionLoading ? 'Memproses...' : 'Setujui'}
-                  </button>
-                </div>
-              )}
-            </div>
+            {/* Catatan admin - sudah ada */}
+            {tab !== 'pending' && selected.admin_note && (
+              <div className="mt-4 bg-gray-50 rounded-lg px-4 py-3">
+                <p className="text-xs text-gray-400 mb-1">Catatan admin</p>
+                <p className="text-sm text-gray-700">{selected.admin_note}</p>
+              </div>
+            )}
+
+            {/* Status badge - approved */}
+            {tab === 'approved' && (
+              <div className="mt-4 bg-green-100 text-green-700 p-3 rounded-lg text-sm">
+                ✔ Bukti pembayaran sudah disetujui oleh Admin
+              </div>
+            )}
+
+            {/* Status badge - rejected */}
+            {tab === 'rejected' && (
+              <div className="mt-4 bg-red-100 text-red-600 p-3 rounded-lg text-sm">
+                ✖ {selected.admin_note || 'Pembayaran ditolak'}
+              </div>
+            )}
+
+            {/* Action buttons - pending */}
+            {tab === 'pending' && (
+              <div className="flex justify-end gap-3 mt-6">
+                <button
+                  onClick={() => handleReject(selected)}
+                  disabled={actionLoading || !adminNote.trim()}
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:opacity-40 transition"
+                >
+                  {actionLoading ? 'Memproses...' : 'Tolak'}
+                </button>
+                <button
+                  onClick={() => handleApprove(selected)}
+                  disabled={actionLoading}
+                  className="px-4 py-2 bg-[#14B8A6] text-white rounded-lg hover:bg-[#0d9488] disabled:opacity-40 transition"
+                >
+                  {actionLoading ? 'Memproses...' : 'Setujui'}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
 
-      {/* Page header */}
+      {/* ── PAGE HEADER ── */}
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Verifikasi Pembayaran</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Cek dan approve bukti transfer dari buyer</p>
+        <h1 className="text-[24px] font-semibold text-[#0F172A]">Verifikasi Pembayaran</h1>
+        <p className="text-sm text-gray-500 mt-1">Cek dan approve bukti transfer dari buyer</p>
       </div>
 
       {/* Success toast */}
       {success && (
-        <div className="mb-5 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-xl px-4 py-3 flex items-center justify-between">
-          <p className="text-sm text-green-700 dark:text-green-300">{success}</p>
+        <div className="mb-5 bg-green-50 border border-green-200 rounded-xl px-4 py-3 flex items-center justify-between">
+          <p className="text-sm text-green-700">{success}</p>
           <button onClick={() => setSuccess('')} className="text-green-500 ml-4">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
           </button>
         </div>
       )}
 
-      {/* Tabs */}
-      <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 rounded-xl p-1 w-fit mb-6">
+      {/* ── TABS ── */}
+      <div className="flex gap-6 border-b border-[#E2E8F0] mb-6">
         {(['pending', 'approved', 'rejected'] as const).map(t => (
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-              tab === t
-                ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-white shadow-sm'
-                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+            className={`relative pb-2 font-medium text-sm transition-colors ${
+              tab === t ? 'text-[#14B8A6]' : 'text-[#64748B] hover:text-gray-800'
             }`}
           >
             {t === 'pending' ? 'Menunggu' : t === 'approved' ? 'Disetujui' : 'Ditolak'}
+            {tab === t && (
+              <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#14B8A6]" />
+            )}
           </button>
         ))}
       </div>
 
-      {/* Content */}
+      {/* ── CONTENT ── */}
       {loading ? (
         <div className="flex items-center justify-center py-20">
-          <div className="w-6 h-6 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
+          <div className="w-6 h-6 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
         </div>
+
       ) : payments.length === 0 ? (
         <div className="text-center py-20">
-          <div className="w-14 h-14 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-3">
+          <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-gray-400">
               <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>
             </svg>
           </div>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+          <p className="text-sm text-[#64748B]">
             {tab === 'pending' ? 'Tidak ada bukti transfer yang menunggu' : tab === 'approved' ? 'Belum ada pembayaran yang disetujui' : 'Tidak ada pembayaran yang ditolak'}
           </p>
         </div>
+
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        /* ── GRID CARDS ── */
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {payments.map(payment => (
             <div
               key={payment.id}
-              className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden hover:border-gray-300 dark:hover:border-gray-600 transition-all cursor-pointer"
+              className="bg-white border border-[#E2E8F0] rounded-2xl overflow-hidden hover:border-teal-300 hover:shadow-sm transition cursor-pointer"
               onClick={() => { setSelected(payment); setAdminNote('') }}
             >
-              {/* Thumbnail bukti transfer */}
+              {/* Thumbnail */}
               {payment.payment_proof_url && (
-                <div className="h-32 bg-gray-100 dark:bg-gray-800 overflow-hidden">
-                  <img
-                    src={payment.payment_proof_url}
-                    alt="Bukti"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
+                <img
+                  src={payment.payment_proof_url}
+                  alt="Bukti"
+                  className="w-full h-[140px] object-cover"
+                />
               )}
 
               <div className="p-4">
-                <div className="flex items-start justify-between gap-2 mb-3">
-                  <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                {/* Title + badge */}
+                <div className="flex justify-between items-center mb-3">
+                  <p className="font-semibold text-[#0F172A] truncate">
                     {payment.order?.product_name ?? '-'}
                   </p>
-                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium shrink-0 ${
+                  <span className={`text-xs px-3 py-1 rounded-full font-medium shrink-0 ml-2 ${
                     tab === 'pending'
-                      ? 'bg-yellow-100 dark:bg-yellow-950 text-yellow-700 dark:text-yellow-300'
+                      ? 'bg-orange-100 text-orange-600'
                       : tab === 'approved'
-                      ? 'bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-300'
-                      : 'bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300'
+                      ? 'bg-green-100 text-green-600'
+                      : 'bg-red-100 text-red-600'
                   }`}>
                     {tab === 'pending' ? 'Menunggu' : tab === 'approved' ? 'Disetujui' : 'Ditolak'}
                   </span>
                 </div>
 
-                <div className="space-y-1.5 text-xs text-gray-500 dark:text-gray-400">
-                  <p>👤 Buyer: <span className="text-gray-700 dark:text-gray-300">{payment.order?.buyer?.full_name ?? '-'}</span></p>
-                  <p>💳 {payment.payment_method ?? 'Metode tidak diketahui'}</p>
-                  <p className="text-sm font-semibold text-gray-900 dark:text-white">{formatRupiah(payment.amount_idr)}</p>
-                  {payment.paid_at && <p>🕐 {formatDate(payment.paid_at)}</p>}
+                {/* Info box */}
+                <div className="bg-[#F1F5F9] rounded-xl p-3 text-sm">
+                  <p>
+                    <span className="text-gray-400">Buyer</span><br />
+                    <span className="font-semibold text-gray-900 text-[15px]">
+                      {payment.order?.buyer?.full_name ?? '-'}
+                    </span>
+                  </p>
+                  <p className="mt-2">
+                    <span className="text-gray-400">Metode Pembayaran</span><br />
+                    <span className="font-semibold text-gray-900 text-[15px]">
+                      {payment.payment_method ?? '-'}
+                    </span>
+                  </p>
                 </div>
 
-                {tab === 'pending' && (
-                  <p className="text-xs text-blue-500 mt-3 font-medium">Klik untuk review →</p>
-                )}
+                {/* Footer */}
+                <div className="flex justify-between items-center mt-4">
+                  <p className="text-[#14B8A6] font-semibold text-[16px]">
+                    {formatRupiah(payment.amount_idr)}
+                  </p>
+                  <span className="text-[#14B8A6] font-medium text-sm">
+                    Lihat Detail →
+                  </span>
+                </div>
               </div>
             </div>
           ))}
