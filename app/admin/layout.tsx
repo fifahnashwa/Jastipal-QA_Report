@@ -201,9 +201,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </nav>
 
       {/* Content */}
-      <main>
-        {children}
-      </main>
+     <main className="max-w-[1280px] mx-auto px-6">
+  {children}
+</main>
     </div>
   )
 }
