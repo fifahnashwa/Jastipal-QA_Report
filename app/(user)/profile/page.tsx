@@ -134,14 +134,14 @@ export default function ProfilePage() {
     // belum pernah daftar
     if (!jastiperProfile) {
       return (
-        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-6">
-          <h2 className="text-base font-semibold text-gray-900 dark:text-white mb-1">Daftar sebagai Jastiper</h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <h2 className="text-base font-bold text-gray-900 mb-1">Daftar sebagai Jastiper</h2>
+          <p className="text-sm text-gray-500 mb-5">
             Jadilah jastiper dan bantu buyer belanja dari luar negeri. Upload KYC untuk memulai.
           </p>
           <button
             onClick={() => router.push('/profile/switch-to-jastiper')}
-            className="bg-blue-500 hover:bg-blue-600 text-white rounded-lg px-4 py-2 text-sm font-medium transition-all"
+            className="w-full bg-[#49BC9E] hover:bg-[#3da88d] transition-colors text-white font-semibold text-sm py-3 rounded-lg"
           >
             Daftar sebagai Jastiper
           </button>
@@ -152,12 +152,12 @@ export default function ProfilePage() {
     // pending
     if (jastiperProfile.kyc_status === 'pending') {
       return (
-        <div className="bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-xl p-6">
+        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6">
           <div className="flex items-center gap-2 mb-2">
             <div className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></div>
-            <h2 className="text-base font-semibold text-yellow-800 dark:text-yellow-300">Menunggu Review Admin</h2>
+            <h2 className="text-base font-semibold text-yellow-800">Menunggu Review Admin</h2>
           </div>
-          <p className="text-sm text-yellow-700 dark:text-yellow-400">
+          <p className="text-sm text-yellow-700">
             Pengajuan jastiper kamu sedang diproses. Kami akan memberitahu kamu setelah review selesai.
           </p>
         </div>
@@ -167,19 +167,19 @@ export default function ProfilePage() {
     // rejected
     if (jastiperProfile.kyc_status === 'rejected') {
       return (
-        <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-xl p-6">
+        <div className="bg-red-50 border border-red-200 rounded-xl p-6">
           <div className="flex items-center gap-2 mb-2">
             <div className="w-2 h-2 rounded-full bg-red-400"></div>
-            <h2 className="text-base font-semibold text-red-800 dark:text-red-300">Pengajuan Ditolak</h2>
+            <h2 className="text-base font-semibold text-red-800">Pengajuan Ditolak</h2>
           </div>
           {jastiperProfile.kyc_rejection_reason && (
-            <p className="text-sm text-red-700 dark:text-red-400 mb-4">
+            <p className="text-sm text-red-700 mb-4">
               Alasan: {jastiperProfile.kyc_rejection_reason}
             </p>
           )}
           <button
             onClick={() => router.push('/profile/switch-to-jastiper')}
-            className="bg-red-500 hover:bg-red-600 text-white rounded-lg px-4 py-2 text-sm font-medium transition-all"
+            className="w-full bg-[#49BC9E] hover:bg-[#3da88d] transition-colors text-white font-semibold text-sm py-3 rounded-lg"
           >
             Ajukan Ulang
           </button>
@@ -189,50 +189,50 @@ export default function ProfilePage() {
 
     // approved — tampilkan toggle mode
     return (
-      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-6">
+      <div className="bg-white border border-gray-200 rounded-xl p-6">
         <div className="flex items-center gap-2 mb-1">
           <div className="w-2 h-2 rounded-full bg-green-400"></div>
-          <h2 className="text-base font-semibold text-gray-900 dark:text-white">Verified Jastiper ✓</h2>
+          <h2 className="text-base font-bold text-gray-900">Verified Jastiper ✓</h2>
         </div>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-5">
+        <p className="text-sm text-gray-500 mb-5">
           Kamu bisa beralih antara mode buyer dan jastiper kapan saja.
         </p>
 
         {/* Edit profil jastiper */}
         <div className="space-y-3 mb-5">
-          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Edit Profil Jastiper</h3>
+          <h3 className="text-sm font-semibold text-gray-700">Edit Profil Jastiper</h3>
 
           <div>
-            <label className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1 block">Nomor WhatsApp</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">Nomor WhatsApp</label>
             <input
               placeholder="Contoh: 08123456789"
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm outline-none focus:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+              className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-700 outline-none focus:border-[#49BC9E] transition-colors"
               value={jastiperForm.whatsapp_number}
               onChange={e => setJastiperForm({ ...jastiperForm, whatsapp_number: e.target.value })}
             />
           </div>
 
           <div>
-            <label className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1 block">Service Fee (%)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">Service Fee (%)</label>
             <input
               type="number"
               min="0"
               max="100"
               placeholder="Contoh: 10"
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm outline-none focus:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+              className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-700 outline-none focus:border-[#49BC9E] transition-colors"
               value={jastiperForm.service_fee_pct}
               onChange={e => setJastiperForm({ ...jastiperForm, service_fee_pct: e.target.value })}
             />
           </div>
 
           {jastiperEditSuccess && (
-            <p className="text-xs text-green-600 dark:text-green-400 font-medium">✓ Profil jastiper berhasil disimpan</p>
+            <p className="text-xs text-green-600 font-medium">✓ Profil jastiper berhasil disimpan</p>
           )}
 
           <button
             onClick={handleSaveJastiperProfile}
             disabled={jastiperEditLoading}
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-lg py-2 text-sm font-medium disabled:opacity-50 transition-all"
+            className="w-full bg-[#49BC9E] hover:bg-[#3da88d] transition-colors text-white font-semibold text-sm py-3 rounded-lg disabled:opacity-50"
           >
             {jastiperEditLoading ? 'Menyimpan...' : 'Simpan Profil Jastiper'}
           </button>
@@ -241,42 +241,40 @@ export default function ProfilePage() {
         {/* Info jastiper */}
         <div className="grid grid-cols-2 gap-2 mb-5">
           {jastiperProfile.base_country && (
-            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-              <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Domisili</p>
-              <p className="text-sm font-medium text-gray-900 dark:text-white">{jastiperProfile.base_country}</p>
+            <div className="bg-gray-50 rounded-lg p-3">
+              <p className="text-xs text-gray-500 mb-0.5">Domisili</p>
+              <p className="text-sm font-medium text-gray-900">{jastiperProfile.base_country}</p>
             </div>
           )}
           {jastiperProfile.service_fee_pct && (
-            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-              <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Service Fee</p>
-              <p className="text-sm font-medium text-gray-900 dark:text-white">{jastiperProfile.service_fee_pct}%</p>
+            <div className="bg-gray-50 rounded-lg p-3">
+              <p className="text-xs text-gray-500 mb-0.5">Service Fee</p>
+              <p className="text-sm font-medium text-gray-900">{jastiperProfile.service_fee_pct}%</p>
             </div>
           )}
         </div>
 
         {/* Toggle mode */}
-        <div className="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
-          {/* Current mode indicator */}
+        <div className="border border-gray-200 rounded-xl overflow-hidden">
           <div className={`px-4 py-3 text-sm font-medium flex items-center gap-2 ${
             activeRole === 'jastiper'
-              ? 'bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300'
-              : 'bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
+              ? 'bg-[#49BC9E]/10 text-[#49BC9E]'
+              : 'bg-gray-50 text-gray-600'
           }`}>
-            <div className={`w-2 h-2 rounded-full ${activeRole === 'jastiper' ? 'bg-blue-400' : 'bg-gray-400'}`}></div>
+            <div className={`w-2 h-2 rounded-full ${activeRole === 'jastiper' ? 'bg-[#49BC9E]' : 'bg-gray-400'}`}></div>
             Mode aktif sekarang: <span className="font-semibold">{activeRole === 'jastiper' ? 'Jastiper' : 'Buyer'}</span>
           </div>
 
-          {/* Switch button */}
           <div className="p-4">
             {activeRole === 'buyer' ? (
               <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
+                <p className="text-sm text-gray-500 mb-3">
                   Beralih ke mode jastiper untuk mulai menerima order dan membuat listing.
                 </p>
                 <button
                   onClick={() => handleSwitchRole('jastiper')}
                   disabled={switchLoading}
-                  className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-lg py-2.5 text-sm font-medium disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+                  className="w-full bg-[#49BC9E] hover:bg-[#3da88d] transition-colors text-white font-semibold text-sm py-3 rounded-lg disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {switchLoading ? (
                     <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"></div>
@@ -290,13 +288,13 @@ export default function ProfilePage() {
               </div>
             ) : (
               <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
+                <p className="text-sm text-gray-500 mb-3">
                   Beralih ke mode buyer untuk berbelanja dan membuat request.
                 </p>
                 <button
                   onClick={() => handleSwitchRole('buyer')}
                   disabled={switchLoading}
-                  className="w-full border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg py-2.5 text-sm font-medium disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+                  className="w-full border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg py-2.5 text-sm font-medium disabled:opacity-50 transition-all flex items-center justify-center gap-2"
                 >
                   {switchLoading ? (
                     <div className="w-4 h-4 border-2 border-gray-400/40 border-t-gray-400 rounded-full animate-spin"></div>
@@ -318,31 +316,32 @@ export default function ProfilePage() {
   return (
     <div className="max-w-lg space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Profil saya</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Kelola informasi akun kamu</p>
+        <h1 className="text-2xl font-bold text-gray-900">Profil Saya</h1>
+        <p className="text-sm text-gray-500 mt-1">Kelola informasi akun Jastipal kamu</p>
       </div>
 
       {/* Badge mode aktif */}
       {isJastiper && profileLoaded && jastiperProfile?.kyc_status === 'approved' && (
         <div className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium w-fit ${
           activeRole === 'jastiper'
-            ? 'bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300'
-            : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
+            ? 'bg-[#49BC9E]/10 text-[#49BC9E]'
+            : 'bg-gray-100 text-gray-600'
         }`}>
-          <div className={`w-1.5 h-1.5 rounded-full ${activeRole === 'jastiper' ? 'bg-blue-500' : 'bg-gray-400'}`}></div>
+          <div className={`w-1.5 h-1.5 rounded-full ${activeRole === 'jastiper' ? 'bg-[#49BC9E]' : 'bg-gray-400'}`}></div>
           {activeRole === 'jastiper' ? '🧳 Mode Jastiper Aktif' : '🛍️ Mode Buyer Aktif'}
         </div>
       )}
 
       {/* Data Pribadi */}
-      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-6">
-        <h2 className="text-base font-semibold text-gray-900 dark:text-white mb-4">Data Pribadi</h2>
+      <div className="bg-white border border-gray-200 rounded-xl p-6">
+        <h2 className="text-base font-bold text-gray-900 mb-5">Data Pribadi</h2>
 
-        <div className="flex items-center gap-4 mb-6 pb-6 border-b border-gray-100 dark:border-gray-800">
+        {/* Avatar */}
+        <div className="flex items-center gap-4 mb-6">
           {avatarUrl ? (
-            <img src={avatarUrl} alt="avatar" className="w-16 h-16 rounded-full object-cover" />
+            <img src={avatarUrl} alt="avatar" className="w-16 h-16 rounded-full object-cover border border-gray-200" />
           ) : (
-            <div className="w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-lg font-medium text-blue-600 dark:text-blue-300 uppercase">
+            <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-lg font-medium text-gray-600 uppercase">
               {initials}
             </div>
           )}
@@ -350,37 +349,40 @@ export default function ProfilePage() {
             <button
               onClick={() => fileInputRef.current?.click()}
               disabled={uploading}
-              className="text-sm font-medium text-blue-500 hover:text-blue-600 disabled:opacity-50 transition-all"
+              className="text-sm font-medium text-[#49BC9E] hover:underline disabled:opacity-50 transition-all cursor-pointer"
             >
-              {uploading ? 'Mengupload...' : 'Ganti foto'}
+              {uploading ? 'Mengupload...' : 'Ubah foto'}
             </button>
-            <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">JPG atau PNG, maks 2MB</p>
+            <p className="text-xs text-gray-400 mt-0.5">PNG, JPG up to 2MB</p>
             <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleUploadAvatar} />
           </div>
         </div>
 
         {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
         {success && (
-          <div className="bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg px-4 py-3 mb-4">
-            <p className="text-green-600 dark:text-green-400 text-sm">Profil berhasil disimpan!</p>
+          <div className="bg-green-50 border border-green-200 rounded-lg px-4 py-3 mb-4">
+            <p className="text-green-600 text-sm">Profil berhasil disimpan!</p>
           </div>
         )}
 
+        {/* Nama Lengkap */}
         <div className="mb-4">
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">Nama lengkap</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">Nama Lengkap</label>
           <input
-            className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm outline-none focus:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+            type="text"
+            className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-700 outline-none focus:border-[#49BC9E] transition-colors"
             value={form.full_name}
             onChange={e => setForm({ ...form, full_name: e.target.value })}
           />
         </div>
 
+        {/* Nomor Telepon */}
         <div className="mb-6">
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">Nomor telepon</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">Nomor Telepon</label>
           <input
             type="tel"
             placeholder="08xxxxxxxxxx"
-            className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm outline-none focus:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+            className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-700 outline-none focus:border-[#49BC9E] transition-colors"
             value={form.phone}
             onChange={e => setForm({ ...form, phone: e.target.value })}
           />
@@ -389,9 +391,9 @@ export default function ProfilePage() {
         <button
           onClick={handleSave}
           disabled={loading}
-          className="w-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg py-2.5 text-sm font-medium hover:opacity-90 disabled:opacity-50 transition-all"
+          className="w-full bg-[#49BC9E] hover:bg-[#3da88d] transition-colors text-white font-semibold text-sm py-3 rounded-lg disabled:opacity-50"
         >
-          {loading ? 'Menyimpan...' : 'Simpan perubahan'}
+          {loading ? 'Menyimpan...' : 'Simpan Perubahan'}
         </button>
       </div>
 

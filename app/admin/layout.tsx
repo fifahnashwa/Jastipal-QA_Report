@@ -78,14 +78,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       badge: pendingPayment > 0 ? pendingPayment : null,
     },
     {
-      href: '/admin/users',
-      label: 'Kelola User',
-      badge: null,
-    },
-    {
       href: '/admin/disputes',
       label: 'Pelanggaran',
       badge: pendingDisputes > 0 ? pendingDisputes : null,
+    },
+    {
+      href: '/admin/users',
+      label: 'Kelola User',
+      badge: null,
     },
   ]
 
