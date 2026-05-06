@@ -152,13 +152,10 @@ export default function ProfilePage() {
     // pending
     if (jastiperProfile.kyc_status === 'pending') {
       return (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></div>
-            <h2 className="text-base font-semibold text-yellow-800">Menunggu Review Admin</h2>
-          </div>
-          <p className="text-sm text-yellow-700">
-            Pengajuan jastiper kamu sedang diproses. Kami akan memberitahu kamu setelah review selesai.
+        <div className="bg-[#e6f7f3] border border-[#49BC9E] rounded-xl p-6">
+          <h2 className="text-base font-bold text-[#49BC9E] mb-1">Menunggu Review Admin</h2>
+          <p className="text-sm text-[#49BC9E]">
+            Pengajuan Jastiper kamu sedang diproses. Kami akan memberitahu kamu setelah review selesai.
           </p>
         </div>
       )
@@ -168,20 +165,17 @@ export default function ProfilePage() {
     if (jastiperProfile.kyc_status === 'rejected') {
       return (
         <div className="bg-red-50 border border-red-200 rounded-xl p-6">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-2 h-2 rounded-full bg-red-400"></div>
-            <h2 className="text-base font-semibold text-red-800">Pengajuan Ditolak</h2>
-          </div>
+          <h2 className="text-base font-bold text-red-500 mb-1">Pengajuan Ditolak</h2>
           {jastiperProfile.kyc_rejection_reason && (
-            <p className="text-sm text-red-700 mb-4">
+            <p className="text-sm text-red-500 mb-4">
               Alasan: {jastiperProfile.kyc_rejection_reason}
             </p>
           )}
           <button
             onClick={() => router.push('/profile/switch-to-jastiper')}
-            className="w-full bg-[#49BC9E] hover:bg-[#3da88d] transition-colors text-white font-semibold text-sm py-3 rounded-lg"
+            className="w-full bg-red-500 hover:bg-red-600 transition-colors text-white font-semibold text-sm py-3 rounded-lg"
           >
-            Ajukan Ulang
+            Ajukan Kembali
           </button>
         </div>
       )
@@ -201,7 +195,6 @@ export default function ProfilePage() {
         {/* Edit profil jastiper */}
         <div className="space-y-3 mb-5">
           <h3 className="text-sm font-semibold text-gray-700">Edit Profil Jastiper</h3>
-
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">Nomor WhatsApp</label>
             <input
@@ -211,7 +204,6 @@ export default function ProfilePage() {
               onChange={e => setJastiperForm({ ...jastiperForm, whatsapp_number: e.target.value })}
             />
           </div>
-
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">Service Fee (%)</label>
             <input
@@ -224,11 +216,9 @@ export default function ProfilePage() {
               onChange={e => setJastiperForm({ ...jastiperForm, service_fee_pct: e.target.value })}
             />
           </div>
-
           {jastiperEditSuccess && (
             <p className="text-xs text-green-600 font-medium">✓ Profil jastiper berhasil disimpan</p>
           )}
-
           <button
             onClick={handleSaveJastiperProfile}
             disabled={jastiperEditLoading}
@@ -257,14 +247,11 @@ export default function ProfilePage() {
         {/* Toggle mode */}
         <div className="border border-gray-200 rounded-xl overflow-hidden">
           <div className={`px-4 py-3 text-sm font-medium flex items-center gap-2 ${
-            activeRole === 'jastiper'
-              ? 'bg-[#49BC9E]/10 text-[#49BC9E]'
-              : 'bg-gray-50 text-gray-600'
+            activeRole === 'jastiper' ? 'bg-[#49BC9E]/10 text-[#49BC9E]' : 'bg-gray-50 text-gray-600'
           }`}>
             <div className={`w-2 h-2 rounded-full ${activeRole === 'jastiper' ? 'bg-[#49BC9E]' : 'bg-gray-400'}`}></div>
             Mode aktif sekarang: <span className="font-semibold">{activeRole === 'jastiper' ? 'Jastiper' : 'Buyer'}</span>
           </div>
-
           <div className="p-4">
             {activeRole === 'buyer' ? (
               <div>
@@ -314,7 +301,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="max-w-lg space-y-6">
+    <div className="max-w-3xl mx-auto space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Profil Saya</h1>
         <p className="text-sm text-gray-500 mt-1">Kelola informasi akun Jastipal kamu</p>
@@ -323,9 +310,7 @@ export default function ProfilePage() {
       {/* Badge mode aktif */}
       {isJastiper && profileLoaded && jastiperProfile?.kyc_status === 'approved' && (
         <div className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium w-fit ${
-          activeRole === 'jastiper'
-            ? 'bg-[#49BC9E]/10 text-[#49BC9E]'
-            : 'bg-gray-100 text-gray-600'
+          activeRole === 'jastiper' ? 'bg-[#49BC9E]/10 text-[#49BC9E]' : 'bg-gray-100 text-gray-600'
         }`}>
           <div className={`w-1.5 h-1.5 rounded-full ${activeRole === 'jastiper' ? 'bg-[#49BC9E]' : 'bg-gray-400'}`}></div>
           {activeRole === 'jastiper' ? '🧳 Mode Jastiper Aktif' : '🛍️ Mode Buyer Aktif'}
@@ -365,7 +350,6 @@ export default function ProfilePage() {
           </div>
         )}
 
-        {/* Nama Lengkap */}
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1.5">Nama Lengkap</label>
           <input
@@ -376,7 +360,6 @@ export default function ProfilePage() {
           />
         </div>
 
-        {/* Nomor Telepon */}
         <div className="mb-6">
           <label className="block text-sm font-medium text-gray-700 mb-1.5">Nomor Telepon</label>
           <input
