@@ -98,34 +98,45 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
   return (
     <div className="min-h-screen bg-[#F9FAFB]">
       {/* Navbar */}
-      <nav className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-0 z-30">
-        <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
-          {/* Logo */}
-          <Link href="/dashboard" className="font-bold text-gray-900 dark:text-white text-lg">
-            Jastipal
-          </Link>
+      <nav className="bg-white border-b border-gray-200 sticky top-0 z-30">
+        <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
 
-          {/* Nav items — desktop */}
-          <div className="hidden sm:flex items-center gap-1">
-            {navItems.map(item => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`relative flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                  isActive(item.href)
-                    ? 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white'
-                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'
-                }`}
-              >
-                {item.icon}
-                {item.label}
-                {item.badge && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-blue-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                    {item.badge}
-                  </span>
-                )}
-              </Link>
-            ))}
+          {/* Logo */}
+          <div className="flex items-center gap-8">
+            <Link href="/dashboard" className="flex items-center gap-2">
+              <img
+                src="/Logo Jastipal.svg"
+                alt="Jastipal Logo"
+                className="w-8 h-8 object-contain"
+              />
+              <span className="font-semibold text-gray-900 text-lg">Jastipal</span>
+            </Link>
+
+            {/* Nav items — desktop */}
+            <div className="hidden sm:flex items-center h-16">
+              {navItems.map(item => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`relative h-full flex items-center gap-2 px-4 text-sm font-medium transition-colors ${
+                    isActive(item.href)
+                      ? 'text-[#49BC9E]'
+                      : 'text-gray-500 hover:text-gray-800'
+                  }`}
+                >
+                  {item.icon}
+                  {item.label}
+                  {item.badge && (
+                    <span className="w-4 h-4 bg-[#49BC9E] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                      {item.badge}
+                    </span>
+                  )}
+                  {isActive(item.href) && (
+                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#49BC9E]" />
+                  )}
+                </Link>
+              ))}
+            </div>
           </div>
 
           {/* Right side — role badge + avatar */}
@@ -133,10 +144,10 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
             {/* Role badge */}
             <span className={`hidden sm:flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full ${
               activeRole === 'jastiper'
-                ? 'bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300'
-                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
+                ? 'bg-[#e6f7f3] text-[#2d9b7f]'
+                : 'bg-gray-100 text-gray-500'
             }`}>
-              <div className={`w-1.5 h-1.5 rounded-full ${activeRole === 'jastiper' ? 'bg-blue-500' : 'bg-gray-400'}`}></div>
+              <div className={`w-1.5 h-1.5 rounded-full ${activeRole === 'jastiper' ? 'bg-[#49BC9E]' : 'bg-gray-400'}`} />
               {activeRole === 'jastiper' ? 'Jastiper' : 'Buyer'}
             </span>
 
@@ -147,13 +158,13 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
                 className="flex items-center gap-2 hover:opacity-80 transition-all"
               >
                 {avatarUrl ? (
-                  <img src={avatarUrl} alt="avatar" className="w-8 h-8 rounded-full object-cover" />
+                  <img src={avatarUrl} alt="avatar" className="w-8 h-8 rounded-full object-cover border border-gray-200" />
                 ) : (
-                  <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-xs font-semibold text-blue-600 dark:text-blue-300 uppercase">
+                  <div className="w-8 h-8 rounded-full bg-[#e6f7f3] flex items-center justify-center text-xs font-semibold text-[#49BC9E] uppercase">
                     {initials}
                   </div>
                 )}
-                <span className="hidden sm:block text-sm font-medium text-gray-700 dark:text-gray-300 max-w-[100px] truncate">
+                <span className="hidden sm:block text-sm font-medium text-gray-700 max-w-[100px] truncate">
                   {userName}
                 </span>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="hidden sm:block text-gray-400">
@@ -165,21 +176,21 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
               {showDropdown && (
                 <>
                   <div className="fixed inset-0 z-30" onClick={() => setShowDropdown(false)} />
-                  <div className="absolute right-0 top-full mt-2 w-44 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg z-40 overflow-hidden">
+                  <div className="absolute right-0 top-full mt-2 w-44 bg-white border border-gray-200 rounded-xl shadow-lg z-40 overflow-hidden">
                     <Link
                       href="/profile"
                       onClick={() => setShowDropdown(false)}
-                      className="flex items-center gap-2 px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all"
+                      className="flex items-center gap-2 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                     >
                       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
                       </svg>
                       Profil
                     </Link>
-                    <div className="border-t border-gray-100 dark:border-gray-800"/>
+                    <div className="border-t border-gray-100" />
                     <button
                       onClick={handleLogout}
-                      className="w-full flex items-center gap-2 px-4 py-3 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-950 transition-all"
+                      className="w-full flex items-center gap-2 px-4 py-3 text-sm text-red-500 hover:bg-red-50 transition-colors"
                     >
                       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
@@ -194,21 +205,21 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
         </div>
 
         {/* Mobile nav — bottom bar */}
-        <div className="sm:hidden flex border-t border-gray-200 dark:border-gray-800">
+        <div className="sm:hidden flex border-t border-gray-200">
           {navItems.map(item => (
             <Link
               key={item.href}
               href={item.href}
-              className={`relative flex-1 flex flex-col items-center gap-1 py-2.5 text-[10px] font-medium transition-all ${
+              className={`relative flex-1 flex flex-col items-center gap-1 py-2.5 text-[10px] font-medium transition-colors ${
                 isActive(item.href)
-                  ? 'text-gray-900 dark:text-white'
-                  : 'text-gray-400 dark:text-gray-500'
+                  ? 'text-[#49BC9E]'
+                  : 'text-gray-400'
               }`}
             >
               {item.icon}
               {item.label}
               {item.badge && (
-                <span className="absolute top-1.5 right-1/4 w-4 h-4 bg-blue-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                <span className="absolute top-1.5 right-1/4 w-4 h-4 bg-[#49BC9E] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
                   {item.badge}
                 </span>
               )}
@@ -216,10 +227,10 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
           ))}
           <Link
             href="/profile"
-            className={`relative flex-1 flex flex-col items-center gap-1 py-2.5 text-[10px] font-medium transition-all ${
+            className={`relative flex-1 flex flex-col items-center gap-1 py-2.5 text-[10px] font-medium transition-colors ${
               isActive('/profile')
-                ? 'text-gray-900 dark:text-white'
-                : 'text-gray-400 dark:text-gray-500'
+                ? 'text-[#49BC9E]'
+                : 'text-gray-400'
             }`}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
