@@ -186,43 +186,48 @@ export default function MyRequestsPage() {
 
   return (
     <div className="max-w-3xl">
+
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Request Saya</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Request Saya</h1>
           <p className="text-sm text-gray-400 mt-1">Pantau status permintaan barang kamu</p>
         </div>
         <button
           onClick={() => router.push('/requests/new')}
-          className="bg-[#49BC9E] hover:bg-[#3da88d] transition-colors text-white rounded-lg px-4 py-2 text-sm font-semibold flex items-center gap-2"
+          className="bg-[#49BC9E] hover:bg-[#3da88d] transition-colors text-white rounded-lg px-3 sm:px-4 py-2 text-sm font-semibold flex items-center gap-2 shrink-0"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
             <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
-          Buat Request
+          {/* Label: full text di desktop, singkat di mobile */}
+          <span className="hidden sm:inline">Buat Request</span>
+          <span className="sm:hidden">Buat</span>
         </button>
       </div>
 
-      {/* Tabs */}
-      <div className="flex items-center gap-6 border-b border-gray-200 mb-6">
-        {(['open', 'matched', 'paid', 'selesai', 'cancelled'] as const).map(t => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={`flex items-center gap-1.5 pb-3 text-sm border-b-2 transition-colors ${
-              tab === t
-                ? 'border-[#49BC9E] text-[#49BC9E] font-semibold'
-                : 'border-transparent text-gray-400 hover:text-gray-600'
-            }`}
-          >
-            {tabLabels[t]}
-            {tab === t && requests.length > 0 && (
-              <span className="bg-[#49BC9E] text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
-                {requests.length}
-              </span>
-            )}
-          </button>
-        ))}
+      {/* Tabs — scrollable di mobile */}
+      <div className="overflow-x-auto mb-6 -mx-4 px-4 sm:mx-0 sm:px-0">
+        <div className="flex items-center gap-0 border-b border-gray-200 min-w-max sm:min-w-0">
+          {(['open', 'matched', 'paid', 'selesai', 'cancelled'] as const).map(t => (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              className={`flex items-center gap-1.5 px-3 sm:px-0 sm:mr-6 pb-3 text-sm border-b-2 transition-colors whitespace-nowrap ${
+                tab === t
+                  ? 'border-[#49BC9E] text-[#49BC9E] font-semibold'
+                  : 'border-transparent text-gray-400 hover:text-gray-600'
+              }`}
+            >
+              {tabLabels[t]}
+              {tab === t && requests.length > 0 && (
+                <span className="bg-[#49BC9E] text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                  {requests.length}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Content */}
@@ -238,7 +243,11 @@ export default function MyRequestsPage() {
             </svg>
           </div>
           <p className="text-sm text-gray-400 mb-4">
-            {tab === 'open' ? 'Belum ada request yang aktif' : tab === 'matched' ? 'Belum ada tagihan masuk' : tab === 'paid' ? 'Belum ada request yang diproses' : tab === 'selesai' ? 'Belum ada request yang selesai' : 'Tidak ada request yang dibatalkan'}
+            {tab === 'open' ? 'Belum ada request yang aktif'
+              : tab === 'matched' ? 'Belum ada tagihan masuk'
+              : tab === 'paid' ? 'Belum ada request yang diproses'
+              : tab === 'selesai' ? 'Belum ada request yang selesai'
+              : 'Tidak ada request yang dibatalkan'}
           </p>
           {tab === 'open' && (
             <button
@@ -252,7 +261,7 @@ export default function MyRequestsPage() {
       ) : (
         <div className="space-y-4">
           {requests.map(req => (
-            <div key={req.id} className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+            <div key={req.id} className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 shadow-sm">
 
               {/* Card Header */}
               <div className="flex items-start justify-between gap-3 mb-4">
@@ -268,7 +277,7 @@ export default function MyRequestsPage() {
                   </a>
                 </div>
                 {/* Status Badge */}
-                <span className={`flex-shrink-0 ml-4 text-xs font-semibold rounded-full px-3 py-1 border ${
+                <span className={`flex-shrink-0 text-xs font-semibold rounded-full px-2.5 sm:px-3 py-1 border ${
                   tab === 'open'
                     ? 'text-orange-400 bg-orange-50 border-orange-200'
                     : tab === 'matched' && req.payment_proof_url
@@ -291,17 +300,17 @@ export default function MyRequestsPage() {
               </div>
 
               {/* Detail Grid */}
-              <div className="grid grid-cols-2 gap-x-8 gap-y-4 bg-gray-50 rounded-lg p-4 mb-4">
+              <div className="grid grid-cols-2 gap-x-4 sm:gap-x-8 gap-y-4 bg-gray-50 rounded-lg p-3 sm:p-4 mb-4">
                 <div>
                   <p className="text-xs text-[#49BC9E] mb-1">Estimasi Barang Diterima</p>
                   <p className="text-sm font-semibold text-gray-900">{formatDate(req.deadline)}</p>
                 </div>
                 <div>
                   <p className="text-xs text-[#49BC9E] mb-1">Metode Pengiriman</p>
-                  <p className="text-sm font-semibold text-gray-900 capitalize">{req.delivery_pref === 'courier' ? 'Kirim Paket' : 'Meetup'}</p>
+                  <p className="text-sm font-semibold text-gray-900">{req.delivery_pref === 'courier' ? 'Kirim Paket' : 'Meetup'}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-[#49BC9E] mb-1">Maksimal Budget (IDR)</p>
+                  <p className="text-xs text-[#49BC9E] mb-1">Maksimal Budget</p>
                   <p className="text-sm font-semibold text-gray-900">{formatRupiah(req.max_budget_idr)}</p>
                 </div>
                 <div>
@@ -340,7 +349,7 @@ export default function MyRequestsPage() {
                     <p className="text-sm text-red-700">{req.jastiper.full_name}</p>
                   </div>
                   <div className="text-xs text-red-600 space-y-1">
-                    <p>Harga yang disepakati: <span className="font-medium">{new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(req.fixed_price_idr ?? 0)}</span></p>
+                    <p>Harga yang disepakati: <span className="font-medium">{formatRupiah(req.fixed_price_idr ?? 0)}</span></p>
                     {req.cancellation_reason && <p>Alasan: {req.cancellation_reason}</p>}
                   </div>
                 </div>
@@ -348,15 +357,13 @@ export default function MyRequestsPage() {
 
               {/* Info jastiper + harga — tampil di semua tab matched kecuali cancelled */}
               {tab !== 'cancelled' && req.status === 'matched' && req.fixed_price_idr && (
-                <div className={`border rounded-lg p-4 mb-4 ${
-                  tab === 'matched'
-                    ? 'bg-blue-50 border-blue-200'
-                    : tab === 'paid'
-                    ? 'bg-purple-50 border-purple-200'
-                    : 'bg-green-50 border-green-200'
+                <div className={`border rounded-lg p-3 sm:p-4 mb-4 ${
+                  tab === 'matched' ? 'bg-blue-50 border-blue-200'
+                  : tab === 'paid' ? 'bg-purple-50 border-purple-200'
+                  : 'bg-green-50 border-green-200'
                 }`}>
                   {/* Header */}
-                  <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center justify-between mb-3 flex-wrap gap-1">
                     <p className={`text-sm font-semibold ${
                       tab === 'matched' ? 'text-blue-800'
                       : tab === 'paid' ? 'text-purple-800'
@@ -381,9 +388,9 @@ export default function MyRequestsPage() {
                       : 'border-green-200'
                     }`}>
                       {req.jastiper.avatar_url ? (
-                        <img src={req.jastiper.avatar_url} className="w-9 h-9 rounded-full object-cover" />
+                        <img src={req.jastiper.avatar_url} className="w-9 h-9 rounded-full object-cover shrink-0" />
                       ) : (
-                        <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold uppercase ${
+                        <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold uppercase shrink-0 ${
                           tab === 'matched' ? 'bg-blue-200 text-blue-700'
                           : tab === 'paid' ? 'bg-purple-200 text-purple-700'
                           : 'bg-green-200 text-green-700'
@@ -410,12 +417,13 @@ export default function MyRequestsPage() {
                           href={`https://wa.me/${req.jastiper.whatsapp_number.replace(/[^0-9]/g, '')}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-1.5 bg-green-500 hover:bg-green-600 text-white rounded-lg px-3 py-1.5 text-xs font-medium transition-all shrink-0"
+                          className="flex items-center gap-1.5 bg-green-500 hover:bg-green-600 text-white rounded-lg px-2.5 sm:px-3 py-1.5 text-xs font-medium transition-all shrink-0"
                         >
                           <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
                           </svg>
-                          WhatsApp
+                          <span className="hidden sm:inline">WhatsApp</span>
+                          <span className="sm:hidden">WA</span>
                         </a>
                       )}
                     </div>
@@ -428,11 +436,11 @@ export default function MyRequestsPage() {
                       : tab === 'paid' ? 'text-purple-700'
                       : 'text-green-700'
                     }`}>
-                      <div>
+                      <div className="min-w-0 flex-1 mr-3">
                         <p>Harga fix (all-in)</p>
                         <p className="text-[11px] mt-0.5 opacity-70">Sudah termasuk harga barang, service fee jastiper & ongkir</p>
                       </div>
-                      <span className="font-medium shrink-0 ml-3">{formatRupiah(req.fixed_price_idr)}</span>
+                      <span className="font-medium shrink-0">{formatRupiah(req.fixed_price_idr)}</span>
                     </div>
                     <div className={`flex justify-between text-xs ${
                       tab === 'matched' ? 'text-blue-700'
@@ -493,7 +501,7 @@ export default function MyRequestsPage() {
                   <button
                     onClick={() => handleCancel(req.id)}
                     disabled={cancellingId === req.id}
-                    className="bg-[#49BC9E] hover:bg-[#3da88d] disabled:opacity-50 transition-colors text-white text-sm font-semibold px-6 py-2.5 rounded-lg"
+                    className="bg-[#49BC9E] hover:bg-[#3da88d] disabled:opacity-50 transition-colors text-white text-sm font-semibold px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg"
                   >
                     {cancellingId === req.id ? 'Membatalkan...' : 'Batalkan'}
                   </button>

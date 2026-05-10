@@ -93,7 +93,7 @@ export default function NewRequestPage() {
       </button>
 
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-1">Buat Permintaan</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">Buat Permintaan</h1>
         <p className="text-sm text-gray-500">Kasih tahu kami barang apa yang ingin kamu beli dari luar negeri.</p>
       </div>
 
@@ -106,7 +106,7 @@ export default function NewRequestPage() {
       <div className="space-y-4">
 
         {/* Card: Detail Produk */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
           <h2 className="text-base font-bold text-gray-900 mb-4">Detail Produk</h2>
 
           <div className="mb-4">
@@ -118,7 +118,7 @@ export default function NewRequestPage() {
               <input
                 type="url"
                 placeholder="Tempel URL dari Amazon, Shopee JP, Olive Young, dll."
-                className="flex-1 text-sm text-gray-700 placeholder-gray-400 outline-none bg-transparent"
+                className="flex-1 text-sm text-gray-700 placeholder-gray-400 outline-none bg-transparent min-w-0"
                 value={form.product_url}
                 onChange={e => set('product_url', e.target.value)}
               />
@@ -126,8 +126,9 @@ export default function NewRequestPage() {
             <p className="text-xs text-gray-400 mt-1.5">Kami akan mencoba mengambil detail produk secara otomatis.</p>
           </div>
 
-          <div className="flex items-start gap-4">
-            <div className="flex-1">
+          {/* Nama produk + jumlah — stack di mobile, row di desktop */}
+          <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
+            <div className="w-full sm:flex-1">
               <label className="block text-sm font-medium text-gray-700 mb-1.5">Nama Produk</label>
               <input
                 placeholder="Contoh: Sony WH-1000XM5"
@@ -136,13 +137,13 @@ export default function NewRequestPage() {
                 onChange={e => set('product_name', e.target.value)}
               />
             </div>
-            <div className="w-36">
+            <div className="w-full sm:w-36">
               <label className="block text-sm font-medium text-gray-700 mb-1.5">Jumlah</label>
               <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden">
                 <button
                   type="button"
                   onClick={() => set('quantity', Math.max(1, form.quantity - 1))}
-                  className="px-3 py-2.5 text-sm text-gray-500 hover:bg-gray-50 transition-colors border-r border-gray-200"
+                  className="px-4 sm:px-3 py-2.5 text-sm text-gray-500 hover:bg-gray-50 transition-colors border-r border-gray-200"
                 >
                   -
                 </button>
@@ -150,7 +151,7 @@ export default function NewRequestPage() {
                 <button
                   type="button"
                   onClick={() => set('quantity', form.quantity + 1)}
-                  className="px-3 py-2.5 text-sm text-gray-500 hover:bg-gray-50 transition-colors border-l border-gray-200"
+                  className="px-4 sm:px-3 py-2.5 text-sm text-gray-500 hover:bg-gray-50 transition-colors border-l border-gray-200"
                 >
                   +
                 </button>
@@ -160,7 +161,7 @@ export default function NewRequestPage() {
         </div>
 
         {/* Card: Budget & Tenggat Waktu */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
           <h2 className="text-base font-bold text-gray-900 mb-4">Budget & Tenggat Waktu</h2>
 
           <div className="mb-4">
@@ -171,7 +172,7 @@ export default function NewRequestPage() {
                 type="number"
                 min={0}
                 placeholder="Masukkan budget Anda"
-                className="flex-1 text-sm text-gray-700 placeholder-gray-400 outline-none bg-transparent"
+                className="flex-1 text-sm text-gray-700 placeholder-gray-400 outline-none bg-transparent min-w-0"
                 value={form.max_budget_idr}
                 onChange={e => set('max_budget_idr', e.target.value)}
               />
@@ -191,7 +192,7 @@ export default function NewRequestPage() {
               <input
                 type="date"
                 min={new Date().toISOString().split('T')[0]}
-                className="flex-1 text-sm text-gray-700 outline-none bg-transparent"
+                className="flex-1 text-sm text-gray-700 outline-none bg-transparent min-w-0"
                 value={form.deadline}
                 onChange={e => set('deadline', e.target.value)}
               />
@@ -201,7 +202,7 @@ export default function NewRequestPage() {
         </div>
 
         {/* Card: Pengiriman */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
           <h2 className="text-base font-bold text-gray-900 mb-4">Pengiriman</h2>
 
           <label className="block text-sm font-medium text-gray-700 mb-2">Metode Pengiriman</label>
@@ -209,13 +210,13 @@ export default function NewRequestPage() {
             <button
               type="button"
               onClick={() => set('delivery_pref', 'courier')}
-              className={`flex items-center gap-2 border rounded-lg px-4 py-3 transition-colors ${
+              className={`flex items-center justify-center sm:justify-start gap-2 border rounded-lg px-3 sm:px-4 py-3 transition-colors ${
                 form.delivery_pref === 'courier'
                   ? 'border-[#49BC9E] bg-[#e6f7f3] text-[#49BC9E]'
                   : 'border-gray-200 text-gray-700 hover:border-[#49BC9E]'
               }`}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10" />
               </svg>
               <span className="text-sm">Kirim Paket</span>
@@ -223,16 +224,16 @@ export default function NewRequestPage() {
             <button
               type="button"
               onClick={() => set('delivery_pref', 'meetup')}
-              className={`flex items-center gap-2 border rounded-lg px-4 py-3 transition-colors ${
+              className={`flex items-center justify-center sm:justify-start gap-2 border rounded-lg px-3 sm:px-4 py-3 transition-colors ${
                 form.delivery_pref === 'meetup'
                   ? 'border-[#49BC9E] bg-[#e6f7f3] text-[#49BC9E]'
                   : 'border-gray-200 text-gray-700 hover:border-[#49BC9E]'
               }`}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
-              <span className="text-sm">Meetup / Ketemuan</span>
+              <span className="text-sm">Meetup</span>
             </button>
           </div>
 
@@ -280,7 +281,7 @@ export default function NewRequestPage() {
         </div>
 
         {/* Card: Catatan */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
           <h2 className="text-base font-bold text-gray-900 mb-4">Catatan untuk Jastiper</h2>
           <textarea
             placeholder="Tambahkan catatan khusus (misalnya: packaging, struk, warna, dll.)"
@@ -291,12 +292,12 @@ export default function NewRequestPage() {
           />
         </div>
 
-        {/* Submit */}
+        {/* Submit — full width di mobile, rata kanan di desktop */}
         <div className="flex justify-end pb-6">
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className="bg-[#49BC9E] hover:bg-[#3da88d] transition-colors text-white text-sm font-semibold px-6 py-2.5 rounded-lg disabled:opacity-50"
+            className="w-full sm:w-auto bg-[#49BC9E] hover:bg-[#3da88d] transition-colors text-white text-sm font-semibold px-6 py-2.5 rounded-lg disabled:opacity-50"
           >
             {loading ? 'Mengirim request...' : 'Kirim Request'}
           </button>

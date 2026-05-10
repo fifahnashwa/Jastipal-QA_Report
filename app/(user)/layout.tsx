@@ -15,6 +15,9 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
   const [activeRole, setActiveRole] = useState<'buyer' | 'jastiper'>('buyer')
   const [pendingPaymentCount, setPendingPaymentCount] = useState(0)
   const [showDropdown, setShowDropdown] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => { setMounted(true) }, [])
 
   useEffect(() => {
     async function init() {
@@ -230,38 +233,40 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
       </nav>
 
       {/* ── MOBILE BOTTOM NAV — fixed di bawah layar ── */}
-      <div className="sm:hidden fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-gray-200">
-        <div className="flex items-stretch">
-          {navItems.map(item => (
+      {mounted && (
+        <div className="sm:hidden fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-gray-200">
+          <div className="flex items-stretch">
+            {navItems.map(item => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`relative flex-1 flex flex-col items-center justify-center gap-1 py-3 text-[10px] font-medium transition-colors ${
+                  isActive(item.href) ? 'text-[#49BC9E]' : 'text-gray-400'
+                }`}
+              >
+                {item.icon}
+                {item.label}
+                {item.badge && (
+                  <span className="absolute top-2 left-1/2 ml-2 w-4 h-4 bg-[#49BC9E] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                    {item.badge}
+                  </span>
+                )}
+              </Link>
+            ))}
             <Link
-              key={item.href}
-              href={item.href}
+              href="/profile"
               className={`relative flex-1 flex flex-col items-center justify-center gap-1 py-3 text-[10px] font-medium transition-colors ${
-                isActive(item.href) ? 'text-[#49BC9E]' : 'text-gray-400'
+                isActive('/profile') ? 'text-[#49BC9E]' : 'text-gray-400'
               }`}
             >
-              {item.icon}
-              {item.label}
-              {item.badge && (
-                <span className="absolute top-2 left-1/2 ml-2 w-4 h-4 bg-[#49BC9E] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                  {item.badge}
-                </span>
-              )}
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+              </svg>
+              Profil
             </Link>
-          ))}
-          <Link
-            href="/profile"
-            className={`relative flex-1 flex flex-col items-center justify-center gap-1 py-3 text-[10px] font-medium transition-colors ${
-              isActive('/profile') ? 'text-[#49BC9E]' : 'text-gray-400'
-            }`}
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-            </svg>
-            Profil
-          </Link>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* ── CONTENT ── */}
       {/* pb-24 di mobile supaya konten tidak tertutup bottom nav */}
