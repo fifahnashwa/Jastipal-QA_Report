@@ -16,7 +16,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'orderId is required' }, { status: 400 })
     }
 
-    // Fetch order details
     const { data: order, error: orderError } = await supabase
       .from('orders')
       .select('id, product_name, buyer_id')
@@ -27,12 +26,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
 
-    // Check if the user is the buyer
+  
     if (order.buyer_id !== user.id) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    // Fetch pricing
+    
     const { data: pricing, error: pricingError } = await supabase
       .from('order_pricing')
       .select('total_idr')
@@ -43,7 +42,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Order pricing not found' }, { status: 404 })
     }
 
-    // Fetch user details for buyer data
+
     const { data: userData } = await supabase
       .from('users')
       .select('full_name')
@@ -59,28 +58,24 @@ export async function POST(request: Request) {
 
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
 
-    // Build payload for iPaymu
+    
     const reqBody = {
       product: [order.product_name],
       qty: ['1'],
       price: [pricing.total_idr.toString()],
       returnUrl: `${baseUrl}/api/ipaymu/return?orderId=${order.id}`,
       cancelUrl: `${baseUrl}/orders`,
-      notifyUrl: `${baseUrl}/api/ipaymu/notify`, // optional endpoint (not implemented, since manual flow is kept)
+      notifyUrl: `${baseUrl}/api/ipaymu/notify`, 
       referenceId: order.id,
       buyerName: userData?.full_name || 'Buyer',
       buyerEmail: user.email || '',
-      buyerPhone: '08123456789' // Default/dummy if not available
+      buyerPhone: '08123456789'
     }
 
     const jsonBody = JSON.stringify(reqBody)
-
-    // Generate Signature
     const signatureBody = crypto.createHash('sha256').update(jsonBody).digest('hex').toLowerCase()
     const stringToSign = `POST:${va}:${signatureBody}:${apiKey}`
     const signature = crypto.createHmac('sha256', apiKey).update(stringToSign).digest('hex').toLowerCase()
-
-    // Generate Timestamp (YYYYMMDDhhmmss)
     const now = new Date()
     const timestamp = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${String(now.getSeconds()).padStart(2, '0')}`
 
