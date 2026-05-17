@@ -253,7 +253,7 @@ export default function ProductDetailPage() {
   const total = product.total_price_idr + platformFee + domesticShipping
 
   return (
-    <div className="max-w-lg">
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
       {/* Order modal */}
       {showOrder && (
@@ -392,7 +392,11 @@ export default function ProductDetailPage() {
 
       {/* Foto produk */}
       {product.image_url ? (
-        <img src={product.image_url} className="w-full h-56 object-cover rounded-2xl mb-5" alt={product.product_name} />
+        <img
+  src={product.image_url}
+  className="w-full h-auto max-h-[500px] object-contain rounded-2xl mb-5 bg-gray-100"
+  alt={product.product_name}
+/>
       ) : (
         <div className="w-full h-40 bg-gray-100 rounded-2xl mb-5 flex items-center justify-center">
           <IconImage />

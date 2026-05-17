@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 
@@ -43,11 +43,11 @@ type Order = {
 }
 
 const statusConfig: Record<string, { label: string; color: string; step: number }> = {
-  waiting_payment: { label: 'Menunggu Pembayaran', color: 'text-orange-400',                step: 1 },
-  processing:      { label: 'Diproses Jastiper',   color: 'text-blue-500',                  step: 2 },
-  shipped:         { label: 'Dikirim',              color: 'text-purple-500',                step: 3 },
-  delivered:       { label: 'Selesai',              color: 'text-[#49BC9E]',                 step: 4 },
-  cancelled:       { label: 'Dibatalkan',           color: 'text-gray-400',                  step: 0 },
+  waiting_payment: { label: 'Menunggu Pembayaran', color: 'text-orange-400', step: 1 },
+  processing:      { label: 'Diproses Jastiper',   color: 'text-blue-500',   step: 2 },
+  shipped:         { label: 'Dikirim',              color: 'text-purple-500', step: 3 },
+  delivered:       { label: 'Selesai',              color: 'text-[#49BC9E]',  step: 4 },
+  cancelled:       { label: 'Dibatalkan',           color: 'text-gray-400',   step: 0 },
 }
 
 function formatRupiah(n: number) {
@@ -192,12 +192,7 @@ export default function OrdersPage() {
   async function handleShipped(order: Order) {
     if (!trackingInput.trim()) return
     setActionLoading(true)
-
-    await supabase.from('orders').update({
-      status: 'shipped',
-      tracking_number: trackingInput,
-    }).eq('id', order.id)
-
+    await supabase.from('orders').update({ status: 'shipped', tracking_number: trackingInput }).eq('id', order.id)
     setSuccess('Nomor resi berhasil disimpan, status order diupdate ke Dikirim')
     setSelected(null)
     setTrackingInput('')
@@ -207,14 +202,8 @@ export default function OrdersPage() {
 
   async function handleMeetupDone(order: Order) {
     setActionLoading(true)
-
     await supabase.from('orders').update({ status: 'delivered' }).eq('id', order.id)
-
-    await supabase.from('escrow_transactions').update({
-      status: 'released',
-      released_at: new Date().toISOString(),
-    }).eq('order_id', order.id)
-
+    await supabase.from('escrow_transactions').update({ status: 'released', released_at: new Date().toISOString() }).eq('order_id', order.id)
     setSuccess('Meetup selesai! Dana sudah dicairkan ke kamu.')
     setSelected(null)
     setActionLoading(false)
@@ -223,14 +212,8 @@ export default function OrdersPage() {
 
   async function handleDelivered(order: Order) {
     setActionLoading(true)
-
     await supabase.from('orders').update({ status: 'delivered' }).eq('id', order.id)
-
-    await supabase.from('escrow_transactions').update({
-      status: 'released',
-      released_at: new Date().toISOString(),
-    }).eq('order_id', order.id)
-
+    await supabase.from('escrow_transactions').update({ status: 'released', released_at: new Date().toISOString() }).eq('order_id', order.id)
     setSuccess('Order selesai! Dana sudah dicairkan ke jastiper.')
     setSelected(null)
     setActionLoading(false)
@@ -239,22 +222,14 @@ export default function OrdersPage() {
 
   async function handleCancel(order: Order) {
     setActionLoading(true)
-
     await supabase.from('orders').update({ status: 'cancelled' }).eq('id', order.id)
-
     if (order.flow_type === 'flow_b' && order.listing_id) {
-      const { data: listing } = await supabase
-        .from('listings')
-        .select('stock')
-        .eq('id', order.listing_id)
-        .single()
+      const { data: listing } = await supabase.from('listings').select('stock').eq('id', order.listing_id).single()
       if (listing) {
         await supabase.from('listings').update({ stock: listing.stock + order.quantity }).eq('id', order.listing_id)
       }
     }
-
     await supabase.from('escrow_transactions').update({ status: 'refunded' }).eq('order_id', order.id)
-
     setSuccess('Pesanan berhasil dibatalkan')
     setActionLoading(false)
     fetchOrders()
@@ -266,17 +241,18 @@ export default function OrdersPage() {
     if (activeRole === 'buyer') {
       if (order.status === 'shipped') {
         return (
-          <div className={order.dispute ? '' : 'grid grid-cols-2 gap-3'}>
+          // ✅ FIX: stack vertikal di mobile, grid di sm ke atas
+          <div className={order.dispute ? '' : 'flex flex-col sm:grid sm:grid-cols-2 gap-2 sm:gap-3'}>
             <button
-              onClick={() => { setSelected(order) }}
-              className="w-full bg-[#49BC9E] hover:bg-[#3da88d] text-white rounded-lg py-3 text-sm font-semibold transition-colors"
+              onClick={() => setSelected(order)}
+              className="w-full bg-[#49BC9E] hover:bg-[#3da88d] text-white rounded-lg py-2.5 text-sm font-semibold transition-colors"
             >
-              Konfirmasi Pesanan Diterima
+              Konfirmasi Diterima
             </button>
             {!order.dispute && (
               <button
                 onClick={() => router.push(`/orders/${order.id}/dispute`)}
-                className="border border-gray-200 text-gray-500 rounded-lg py-3 text-sm font-semibold hover:bg-gray-50 transition-colors"
+                className="w-full border border-gray-200 text-gray-500 rounded-lg py-2.5 text-sm font-semibold hover:bg-gray-50 transition-colors"
               >
                 Laporkan Kendala
               </button>
@@ -294,7 +270,6 @@ export default function OrdersPage() {
           </button>
         ) : null
       }
-
       if (order.status === 'waiting_payment') {
         if (order.payment_proof_url) {
           return (
@@ -305,17 +280,18 @@ export default function OrdersPage() {
           )
         }
         return (
-          <div className="grid grid-cols-2 gap-3">
+          // ✅ FIX: stack vertikal di mobile
+          <div className="flex flex-col sm:grid sm:grid-cols-2 gap-2 sm:gap-3">
             <button
               onClick={() => router.push(`/orders/${order.id}/pay`)}
-              className="bg-[#49BC9E] hover:bg-[#3da88d] text-white rounded-lg py-3 text-sm font-semibold transition-colors"
+              className="w-full bg-[#49BC9E] hover:bg-[#3da88d] text-white rounded-lg py-2.5 text-sm font-semibold transition-colors"
             >
               Bayar
             </button>
             <button
               onClick={() => handleCancel(order)}
               disabled={actionLoading}
-              className="border border-gray-200 text-gray-500 rounded-lg py-3 text-sm font-semibold hover:bg-gray-50 disabled:opacity-50 transition-colors"
+              className="w-full border border-gray-200 text-gray-500 rounded-lg py-2.5 text-sm font-semibold hover:bg-gray-50 disabled:opacity-50 transition-colors"
             >
               Batalkan
             </button>
@@ -329,7 +305,7 @@ export default function OrdersPage() {
         return (
           <button
             onClick={() => router.push(`/orders/${order.id}/proof`)}
-            className="w-full bg-[#49BC9E] hover:bg-[#3da88d] text-white rounded-lg py-3 text-sm font-semibold transition-colors"
+            className="w-full bg-[#49BC9E] hover:bg-[#3da88d] text-white rounded-lg py-2.5 text-sm font-semibold transition-colors"
           >
             {order.delivery_pref === 'courier' ? 'Upload Struk & Input Nomor Resi' : 'Upload Struk & Konfirmasi Meetup'}
           </button>
@@ -351,12 +327,14 @@ export default function OrdersPage() {
   }
 
   return (
-    <div className="max-w-2xl pb-12">
+    // ✅ FIX: w-full menggantikan max-w-2xl agar card full lebar container
+    <div className="w-full pb-12">
 
       {/* Modal konfirmasi */}
       {selected && (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-2xl border border-gray-200 w-full max-w-md shadow-xl p-6">
+        <div className="fixed inset-0 z-40 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+          {/* ✅ FIX: di mobile muncul dari bawah (sheet), di sm ke atas jadi modal tengah */}
+          <div className="bg-white rounded-2xl border border-gray-200 w-full max-w-md shadow-xl p-5 sm:p-6">
             {activeRole === 'buyer' && selected.status === 'shipped' && (
               <>
                 <div className="flex items-center justify-between mb-3">
@@ -367,10 +345,10 @@ export default function OrdersPage() {
                     </svg>
                   </button>
                 </div>
-                <p className="text-sm text-gray-500 mb-6">
-                  Pastikan pesanan telah diterima dalam kondisi baik sebelum melakukan konfirmasi. Setelah dikonfirmasi, dana akan otomatis diteruskan kepada jastiper.
+                <p className="text-sm text-gray-500 mb-5">
+                  Pastikan pesanan telah diterima dalam kondisi baik. Setelah dikonfirmasi, dana otomatis diteruskan kepada jastiper.
                 </p>
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-2">
                   <button
                     onClick={() => handleDelivered(selected)}
                     disabled={actionLoading}
@@ -392,12 +370,12 @@ export default function OrdersPage() {
       )}
 
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-5">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+          <h1 className="text-lg sm:text-2xl font-bold text-gray-900">
             {activeRole === 'buyer' ? 'Pesanan Saya' : 'Order Masuk'}
           </h1>
-          <p className="text-sm text-gray-400 mt-1">
+          <p className="text-xs sm:text-sm text-gray-400 mt-0.5">
             {activeRole === 'buyer' ? 'Pantau status pesanan kamu' : 'Kelola order yang sedang kamu handle'}
           </p>
         </div>
@@ -405,9 +383,9 @@ export default function OrdersPage() {
 
       {/* Success toast */}
       {success && (
-        <div className="mb-5 bg-[#e6f7f3] border border-[#b3e8d9] rounded-xl px-4 py-3 flex items-center justify-between">
+        <div className="mb-4 bg-[#e6f7f3] border border-[#b3e8d9] rounded-xl px-4 py-3 flex items-center justify-between">
           <p className="text-sm text-[#2d9b7f] font-medium">{success}</p>
-          <button onClick={() => setSuccess('')} className="text-[#49BC9E] ml-4">
+          <button onClick={() => setSuccess('')} className="text-[#49BC9E] ml-3 shrink-0">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
             </svg>
@@ -415,30 +393,32 @@ export default function OrdersPage() {
         </div>
       )}
 
-      {/* Tabs */}
-      <div className="flex border-b border-gray-200 mb-6">
-        {(['waiting', 'processing', 'delivered', 'cancelled'] as const).map(t => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={`px-4 py-3 text-sm font-medium transition-all relative ${
-              tab === t
-                ? 'text-[#49BC9E] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-[#49BC9E] after:rounded-full'
-                : 'text-gray-400 hover:text-gray-600'
-            }`}
-          >
-            {activeRole === 'buyer'
-              ? t === 'waiting'    ? 'Menunggu Bayar'
-              : t === 'processing' ? 'Diproses'
-              : t === 'delivered'  ? 'Selesai'
-              : 'Dibatalkan'
-              : t === 'waiting'    ? 'Perlu Diproses'
-              : t === 'processing' ? 'Dikirim'
-              : t === 'delivered'  ? 'Selesai'
-              : 'Dibatalkan'
-            }
-          </button>
-        ))}
+      {/* Tabs — ✅ FIX: scroll horizontal di mobile */}
+      <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 mb-5">
+        <div className="flex border-b border-gray-200 min-w-max sm:min-w-0">
+          {(['waiting', 'processing', 'delivered', 'cancelled'] as const).map(t => (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              className={`px-3 sm:px-4 py-3 text-sm font-medium transition-all relative whitespace-nowrap ${
+                tab === t
+                  ? 'text-[#49BC9E] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-[#49BC9E] after:rounded-full'
+                  : 'text-gray-400 hover:text-gray-600'
+              }`}
+            >
+              {activeRole === 'buyer'
+                ? t === 'waiting'    ? 'Menunggu Bayar'
+                : t === 'processing' ? 'Diproses'
+                : t === 'delivered'  ? 'Selesai'
+                : 'Dibatalkan'
+                : t === 'waiting'    ? 'Perlu Diproses'
+                : t === 'processing' ? 'Dikirim'
+                : t === 'delivered'  ? 'Selesai'
+                : 'Dibatalkan'
+              }
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Content */}
@@ -461,20 +441,21 @@ export default function OrdersPage() {
           </p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           {orders.map(order => {
             const cfg = statusConfig[order.status]
             const step = cfg?.step ?? 0
             return (
-              <div key={order.id} className="bg-white border border-gray-200 rounded-xl p-5 sm:p-6">
+              // ✅ FIX: w-full, padding lebih kecil di mobile
+              <div key={order.id} className="w-full bg-white border border-gray-200 rounded-xl p-3 sm:p-5">
 
                 {/* Card Header */}
-                <div className="flex items-start justify-between gap-3 mb-4">
-                  <div className="min-w-0">
-                    <p className="font-bold text-gray-900 truncate">{order.product_name}</p>
-                    <p className="text-sm text-gray-400 mt-0.5">{formatDate(order.created_at)}</p>
+                <div className="flex items-start justify-between gap-2 mb-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-bold text-gray-900 text-sm sm:text-base line-clamp-2">{order.product_name}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">{formatDate(order.created_at)}</p>
                   </div>
-                  <span className={`text-xs font-semibold rounded-full px-2.5 py-1 border shrink-0 ${
+                  <span className={`text-[10px] sm:text-xs font-semibold rounded-full px-2 sm:px-2.5 py-1 border shrink-0 ${
                     order.status === 'waiting_payment' && order.payment_proof_url
                       ? 'text-orange-600 bg-orange-50 border-orange-200'
                       : order.status === 'waiting_payment'
@@ -487,82 +468,52 @@ export default function OrdersPage() {
                       ? 'text-green-600 bg-green-50 border-green-200'
                       : 'text-red-500 bg-red-50 border-red-200'
                   }`}>
-                    {order.status === 'waiting_payment' && order.payment_proof_url
-                      ? 'Direview Admin'
-                      : cfg?.label}
+                    {order.status === 'waiting_payment' && order.payment_proof_url ? 'Direview' : cfg?.label}
                   </span>
                 </div>
 
-                {/* Progress Steps — icon based */}
+                {/* Progress Steps — ✅ FIX: ukuran lebih kecil di mobile */}
                 {order.status !== 'cancelled' && order.status !== 'delivered' && (
-                  <div className="flex items-center mb-6">
-
-                    {/* Step 1: Bayar */}
-                    <div className={`w-10 h-10 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                      step >= 1 ? 'border-[#49BC9E]' : 'border-gray-200'
-                    }`}>
-                      <svg xmlns="http://www.w3.org/2000/svg" className={`w-5 h-5 ${step >= 1 ? 'text-[#49BC9E]' : 'text-gray-300'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </div>
-
-                    <div className={`flex-1 h-px mx-2 ${step > 1 ? 'bg-[#49BC9E]' : 'bg-gray-200'}`} />
-
-                    {/* Step 2: Diproses */}
-                    <div className={`w-10 h-10 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                      step >= 2 ? 'border-[#49BC9E]' : 'border-gray-200'
-                    }`}>
-                      <svg xmlns="http://www.w3.org/2000/svg" className={`w-5 h-5 ${step >= 2 ? 'text-[#49BC9E]' : 'text-gray-300'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                      </svg>
-                    </div>
-
-                    <div className={`flex-1 h-px mx-2 ${step > 2 ? 'bg-[#49BC9E]' : 'bg-gray-200'}`} />
-
-                    {/* Step 3: Dikirim */}
-                    <div className={`w-10 h-10 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                      step >= 3 ? 'border-[#49BC9E]' : 'border-gray-200'
-                    }`}>
-                      <svg xmlns="http://www.w3.org/2000/svg" className={`w-5 h-5 ${step >= 3 ? 'text-[#49BC9E]' : 'text-gray-300'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10" />
-                      </svg>
-                    </div>
-
-                    <div className={`flex-1 h-px mx-2 ${step > 3 ? 'bg-[#49BC9E]' : 'bg-gray-200'}`} />
-
-                    {/* Step 4: Selesai */}
-                    <div className={`w-10 h-10 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                      step >= 4 ? 'border-[#49BC9E]' : 'border-gray-200'
-                    }`}>
-                      <svg xmlns="http://www.w3.org/2000/svg" className={`w-5 h-5 ${step >= 4 ? 'text-[#49BC9E]' : 'text-gray-300'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </div>
-
+                  <div className="flex items-center mb-4">
+                    {[
+                      { s: 1, icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /> },
+                      { s: 2, icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /> },
+                      { s: 3, icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10" /> },
+                      { s: 4, icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /> },
+                    ].map(({ s, icon }, idx) => (
+                      <React.Fragment key={s}>
+                        <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 flex items-center justify-center shrink-0 ${step >= s ? 'border-[#49BC9E]' : 'border-gray-200'}`}>
+                          <svg xmlns="http://www.w3.org/2000/svg" className={`w-4 h-4 sm:w-5 sm:h-5 ${step >= s ? 'text-[#49BC9E]' : 'text-gray-300'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            {icon}
+                          </svg>
+                        </div>
+                        {idx < 3 && <div className={`flex-1 h-px mx-1 sm:mx-2 ${step > s ? 'bg-[#49BC9E]' : 'bg-gray-200'}`} />}
+                      </React.Fragment>
+                    ))}
                   </div>
                 )}
 
-                {/* Delivery info — grid 2 kolom jika ada tracking number, single jika meetup */}
-                <div className={`mb-4 ${order.tracking_number ? 'grid grid-cols-2 gap-4' : ''}`}>
+                {/* Delivery info */}
+                <div className={`mb-3 ${order.tracking_number ? 'grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4' : ''}`}>
                   {order.delivery_pref === 'courier' ? (
                     <>
                       <div>
-                        <p className="text-sm font-semibold text-gray-900 mb-1">Pengiriman:</p>
-                        <p className="text-sm text-gray-500">{order.shipping_address ?? '-'}</p>
+                        <p className="text-xs font-semibold text-gray-900 mb-0.5">Pengiriman:</p>
+                        <p className="text-xs text-gray-500">{order.shipping_address ?? '-'}</p>
                       </div>
                       {order.tracking_number && (
                         <div>
-                          <p className="text-sm font-semibold text-gray-900 mb-1">Ekspedisi:</p>
-                          <p className="text-sm text-gray-500">{order.tracking_number}</p>
+                          <p className="text-xs font-semibold text-gray-900 mb-0.5">No. Resi:</p>
+                          <p className="text-xs text-gray-500 font-mono">{order.tracking_number}</p>
                         </div>
                       )}
                     </>
                   ) : (
                     <div>
-                      <p className="text-sm font-semibold text-gray-900 mb-1">Lokasi Meetup:</p>
-                      <p className="text-sm text-gray-500">{order.meetup_location ?? '-'}</p>
+                      <p className="text-xs font-semibold text-gray-900 mb-0.5">Lokasi Meetup:</p>
+                      <p className="text-xs text-gray-500">{order.meetup_location ?? '-'}</p>
                       {order.meetup_time && (
-                        <p className="text-xs text-gray-400 mt-0.5">
+                        <p className="text-[11px] text-gray-400 mt-0.5">
                           {new Date(order.meetup_time).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                         </p>
                       )}
@@ -572,18 +523,18 @@ export default function OrdersPage() {
 
                 {/* Counterpart info */}
                 {order.counterpart && (
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
                       {order.counterpart.avatar_url ? (
-                        <img src={order.counterpart.avatar_url} className="w-10 h-10 rounded-full object-cover shrink-0" />
+                        <img src={order.counterpart.avatar_url} className="w-9 h-9 rounded-full object-cover shrink-0" />
                       ) : (
-                        <div className="w-10 h-10 rounded-full bg-[#e6f7f3] flex items-center justify-center text-sm font-semibold text-[#49BC9E] uppercase shrink-0">
+                        <div className="w-9 h-9 rounded-full bg-[#e6f7f3] flex items-center justify-center text-sm font-semibold text-[#49BC9E] uppercase shrink-0">
                           {order.counterpart.full_name?.[0] ?? '?'}
                         </div>
                       )}
                       <div>
-                        <p className="text-sm font-semibold text-gray-900">{order.counterpart.full_name}</p>
-                        <p className="text-xs text-gray-400">{activeRole === 'buyer' ? 'Jastiper' : 'Buyer'}</p>
+                        <p className="text-sm font-semibold text-gray-900 truncate max-w-[130px] sm:max-w-none">{order.counterpart.full_name}</p>
+                        <p className="text-[11px] text-gray-400">{activeRole === 'buyer' ? 'Jastiper' : 'Buyer'}</p>
                       </div>
                     </div>
                     {order.counterpart.whatsapp_number && (
@@ -591,7 +542,7 @@ export default function OrdersPage() {
                         href={`https://wa.me/${order.counterpart.whatsapp_number.replace(/[^0-9]/g, '')}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="bg-[#49BC9E] hover:bg-[#3da88d] text-white text-sm font-semibold px-5 py-2 rounded-lg transition-colors shrink-0"
+                        className="bg-[#49BC9E] hover:bg-[#3da88d] text-white text-xs font-semibold px-3 sm:px-5 py-2 rounded-lg transition-colors shrink-0"
                       >
                         Hubungi
                       </a>
@@ -601,12 +552,12 @@ export default function OrdersPage() {
 
                 {/* Pricing */}
                 {order.pricing && (
-                  <div className="bg-gray-50 rounded-lg p-3 mb-4 space-y-1.5">
-                    <div className="flex justify-between text-sm text-gray-500">
+                  <div className="bg-gray-50 rounded-lg p-3 mb-3 space-y-1.5">
+                    <div className="flex justify-between text-xs text-gray-500">
                       <span>Harga fix (all-in)</span>
                       <span>{formatRupiah(order.pricing.product_price_idr)}</span>
                     </div>
-                    <div className="flex justify-between text-sm text-gray-500">
+                    <div className="flex justify-between text-xs text-gray-500">
                       <span>Platform fee (5%)</span>
                       <span>{formatRupiah(order.pricing.platform_fee_idr)}</span>
                     </div>
@@ -619,32 +570,33 @@ export default function OrdersPage() {
 
                 {/* Bukti pembelian */}
                 {activeRole === 'buyer' && order.proof && (
-                  <div className="border border-gray-200 rounded-lg p-4 mb-4">
-                    <p className="text-sm font-semibold text-gray-900 mb-3">Bukti Pembelian</p>
-                    <div className="grid grid-cols-2 gap-3">
+                  <div className="border border-gray-200 rounded-lg p-3 mb-3">
+                    <p className="text-xs font-semibold text-gray-900 mb-2">Bukti Pembelian</p>
+                    {/* ✅ FIX: stack vertikal di mobile, grid di sm */}
+                    <div className="flex flex-col sm:grid sm:grid-cols-2 gap-2">
                       <a
                         href={order.proof.receipt_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-2 border border-gray-200 rounded-lg px-4 py-3 hover:bg-gray-50 transition-colors"
+                        className="flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2.5 hover:bg-gray-50 transition-colors"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
-                        <span className="text-sm text-gray-700">Lihat Struk</span>
+                        <span className="text-xs text-gray-700">Lihat Struk</span>
                       </a>
                       {order.proof.store_photo_url && (
                         <a
                           href={order.proof.store_photo_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-2 border border-gray-200 rounded-lg px-4 py-3 hover:bg-gray-50 transition-colors"
+                          className="flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2.5 hover:bg-gray-50 transition-colors"
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                           </svg>
-                          <span className="text-sm text-gray-700">Lihat Bukti Foto Toko</span>
+                          <span className="text-xs text-gray-700">Foto Toko</span>
                         </a>
                       )}
                     </div>
@@ -653,20 +605,20 @@ export default function OrdersPage() {
 
                 {/* Info dispute open */}
                 {order.dispute && order.dispute.status === 'open' && (
-                  <div className="bg-blue-50 border border-blue-100 rounded-lg px-4 py-3 flex items-start gap-2 mb-4">
+                  <div className="bg-blue-50 border border-blue-100 rounded-lg px-3 py-2.5 flex items-start gap-2 mb-3">
                     <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <div>
-                      <p className="text-sm font-semibold text-blue-600">Komplain sedang ditinjau oleh admin</p>
-                      <p className="text-xs text-blue-500 mt-0.5">{order.dispute.reason}</p>
+                      <p className="text-xs font-semibold text-blue-600">Komplain sedang ditinjau admin</p>
+                      <p className="text-[11px] text-blue-500 mt-0.5">{order.dispute.reason}</p>
                     </div>
                   </div>
                 )}
 
-                {/* Info dispute di order cancelled */}
+                {/* Info dispute cancelled */}
                 {order.status === 'cancelled' && order.dispute && (
-                  <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-3">
                     <p className="text-xs font-semibold text-red-600 mb-1">Order dibatalkan karena pelanggaran</p>
                     <p className="text-xs text-red-700 mb-1">
                       <span className="font-medium">Alasan:</span> {order.dispute.reason}

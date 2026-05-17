@@ -27,14 +27,6 @@ type Request = {
   } | null
 }
 
-const statusConfig = {
-  open: { label: 'Menunggu Jastiper', color: 'bg-yellow-100 text-yellow-700' },
-  matched: { label: 'Tagihan Masuk', color: 'bg-blue-100 text-blue-700' },
-  paid: { label: 'Sudah Dibayar', color: 'bg-purple-100 text-purple-700' },
-  selesai: { label: 'Selesai', color: 'bg-green-100 text-green-700' },
-  cancelled: { label: 'Dibatalkan', color: 'bg-gray-100 text-gray-500' },
-}
-
 function formatRupiah(n: number) {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(n)
 }
@@ -66,8 +58,6 @@ export default function MyRequestsPage() {
     setLoading(true)
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) { router.push('/login'); return }
-
-    const queryStatus = (tab === 'selesai' || tab === 'paid') ? 'matched' : tab === 'cancelled' ? 'in:matched,cancelled' : tab
 
     let query = supabase
       .from('requests')
@@ -185,34 +175,36 @@ export default function MyRequestsPage() {
   }
 
   return (
-    <div className="max-w-3xl pb-12">
+    // ✅ FIX: Hapus max-w-3xl di sini — biarkan parent layout yang mengatur lebar.
+    // Gunakan w-full agar card mengisi penuh lebar container yang tersedia.
+    <div className="w-full pb-12">
 
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-5">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Request Saya</h1>
-          <p className="text-sm text-gray-400 mt-1">Pantau status permintaan barang kamu</p>
+          <h1 className="text-lg sm:text-2xl font-bold text-gray-900">Request Saya</h1>
+          <p className="text-xs sm:text-sm text-gray-400 mt-0.5">Pantau status permintaan barang kamu</p>
         </div>
         <button
           onClick={() => router.push('/requests/new')}
-          className="bg-[#49BC9E] hover:bg-[#3da88d] transition-colors text-white rounded-lg px-3 sm:px-4 py-2 text-sm font-semibold flex items-center gap-2 shrink-0"
+          className="bg-[#49BC9E] hover:bg-[#3da88d] transition-colors text-white rounded-lg px-3 sm:px-4 py-2 text-sm font-semibold flex items-center gap-1.5 shrink-0"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
             <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
           <span className="hidden sm:inline">Tambah Permintaan</span>
-          <span className="sm:hidden">Buat</span>
+          <span className="sm:hidden">Tambah</span>
         </button>
       </div>
 
-      {/* Tabs */}
-      <div className="overflow-x-auto mb-6 -mx-4 px-4 sm:mx-0 sm:px-0">
-        <div className="flex items-center gap-0 border-b border-gray-200 min-w-max sm:min-w-0">
+      {/* Tabs — scroll horizontal di mobile */}
+      <div className="overflow-x-auto mb-5 -mx-4 px-4 sm:mx-0 sm:px-0">
+        <div className="flex items-center gap-0 border-b border-gray-200 min-w-max">
           {(['open', 'matched', 'paid', 'selesai', 'cancelled'] as const).map(t => (
             <button
               key={t}
               onClick={() => setTab(t)}
-              className={`flex items-center gap-1.5 px-3 sm:px-0 sm:mr-6 pb-3 text-sm border-b-2 transition-colors whitespace-nowrap ${
+              className={`flex items-center gap-1.5 px-3 pb-3 text-sm border-b-2 transition-colors whitespace-nowrap ${
                 tab === t
                   ? 'border-[#49BC9E] text-[#49BC9E] font-semibold'
                   : 'border-transparent text-gray-400 hover:text-gray-600'
@@ -258,25 +250,27 @@ export default function MyRequestsPage() {
           )}
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           {requests.map(req => (
-            <div key={req.id} className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 shadow-sm">
+            // ✅ FIX: Card full width, padding lebih kecil di mobile (p-3 → p-4 di sm)
+            <div key={req.id} className="w-full bg-white rounded-xl border border-gray-200 p-3 sm:p-5 shadow-sm">
 
               {/* Card Header */}
-              <div className="flex items-start justify-between gap-3 mb-4">
-                <div className="min-w-0">
-                  <p className="font-bold text-gray-900 mb-1 truncate">{req.product_name}</p>
+              <div className="flex items-start justify-between gap-2 mb-3">
+                <div className="min-w-0 flex-1">
+                  {/* ✅ FIX: Batas teks lebih ketat di mobile, gunakan line-clamp */}
+                  <p className="font-bold text-gray-900 mb-1 text-sm sm:text-base line-clamp-2">{req.product_name}</p>
                   <a
                     href={req.product_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-gray-400 hover:underline truncate block"
+                    className="text-xs text-gray-400 hover:underline truncate block"
                   >
                     {req.product_url}
                   </a>
                 </div>
-                {/* Status Badge */}
-                <span className={`flex-shrink-0 text-xs font-semibold rounded-full px-2.5 sm:px-3 py-1 border ${
+                {/* Status Badge — ✅ FIX: teks lebih kecil di mobile */}
+                <span className={`flex-shrink-0 text-[10px] sm:text-xs font-semibold rounded-full px-2 sm:px-3 py-1 border ${
                   tab === 'open'
                     ? 'text-orange-400 bg-orange-50 border-orange-200'
                     : tab === 'matched' && req.payment_proof_url
@@ -290,96 +284,94 @@ export default function MyRequestsPage() {
                     : 'text-red-500 bg-red-50 border-red-200'
                 }`}>
                   {tab === 'open' ? 'Menunggu'
-                    : tab === 'matched' && req.payment_proof_url ? 'Direview Admin'
-                    : tab === 'matched' ? 'Tagihan Masuk'
-                    : tab === 'paid' ? 'Sudah Dibayar'
+                    : tab === 'matched' && req.payment_proof_url ? 'Direview'
+                    : tab === 'matched' ? 'Tagihan'
+                    : tab === 'paid' ? 'Diproses'
                     : tab === 'selesai' ? 'Selesai'
                     : 'Dibatalkan'}
                 </span>
               </div>
 
-              {/* Detail Grid */}
-              <div className="grid grid-cols-2 gap-x-4 sm:gap-x-8 gap-y-4 bg-gray-50 rounded-lg p-3 sm:p-4 mb-4">
+              {/* Detail Grid — ✅ FIX: 2 kolom tetap tapi lebih compact di mobile */}
+              <div className="grid grid-cols-2 gap-x-3 gap-y-3 bg-gray-50 rounded-lg p-3 mb-3">
                 <div>
-                  <p className="text-xs text-[#64748B] mb-1">Estimasi Barang Diterima</p>
-                  <p className="text-sm font-semibold text-gray-900">{formatDate(req.deadline)}</p>
+                  <p className="text-[11px] text-[#64748B] mb-0.5">Estimasi Diterima</p>
+                  <p className="text-xs sm:text-sm font-semibold text-gray-900">{formatDate(req.deadline)}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-[#64748B] mb-1">Metode Pengiriman</p>
-                  <p className="text-sm font-semibold text-gray-900">{req.delivery_pref === 'courier' ? 'Kirim Paket' : 'Meetup'}</p>
+                  <p className="text-[11px] text-[#64748B] mb-0.5">Pengiriman</p>
+                  <p className="text-xs sm:text-sm font-semibold text-gray-900">{req.delivery_pref === 'courier' ? 'Kirim Paket' : 'Meetup'}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-[#64748B] mb-1">Maksimal Budget</p>
-                  <p className="text-sm font-semibold text-gray-900">{formatRupiah(req.max_budget_idr)}</p>
+                  <p className="text-[11px] text-[#64748B] mb-0.5">Maks. Budget</p>
+                  <p className="text-xs sm:text-sm font-semibold text-gray-900">{formatRupiah(req.max_budget_idr)}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-[#64748B] mb-1">Jumlah</p>
-                  <p className="text-sm font-semibold text-gray-900">{req.quantity} Pcs</p>
+                  <p className="text-[11px] text-[#64748B] mb-0.5">Jumlah</p>
+                  <p className="text-xs sm:text-sm font-semibold text-gray-900">{req.quantity} Pcs</p>
                 </div>
               </div>
 
               {/* Tab Cancelled: request dibatalkan manual */}
               {tab === 'cancelled' && req.status === 'cancelled' && (
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4">
-                  <p className="text-sm font-medium text-gray-600">Request dibatalkan</p>
-                  <p className="text-xs text-gray-400 mt-1">Request ini dibatalkan sebelum ada jastiper yang mengambil.</p>
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 mb-3">
+                  <p className="text-xs sm:text-sm font-medium text-gray-600">Request dibatalkan</p>
+                  <p className="text-[11px] text-gray-400 mt-1">Request ini dibatalkan sebelum ada jastiper yang mengambil.</p>
                 </div>
               )}
 
               {tab === 'cancelled' && req.status === 'matched' && req.jastiper && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4 space-y-3">
-                  <p className="text-sm font-semibold text-red-700">Order Dibatalkan</p>
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-3 space-y-2">
+                  <p className="text-xs sm:text-sm font-semibold text-red-700">Order Dibatalkan</p>
                   <div className="flex items-center gap-2">
                     {req.jastiper.avatar_url ? (
-                      <img src={req.jastiper.avatar_url} className="w-7 h-7 rounded-full object-cover" />
+                      <img src={req.jastiper.avatar_url} className="w-6 h-6 rounded-full object-cover" />
                     ) : (
-                      <div className="w-7 h-7 rounded-full bg-red-200 flex items-center justify-center text-xs font-semibold text-red-700 uppercase">
+                      <div className="w-6 h-6 rounded-full bg-red-200 flex items-center justify-center text-[10px] font-semibold text-red-700 uppercase">
                         {req.jastiper.full_name?.[0] ?? '?'}
                       </div>
                     )}
-                    <p className="text-sm text-red-700">{req.jastiper.full_name}</p>
+                    <p className="text-xs text-red-700">{req.jastiper.full_name}</p>
                   </div>
-                  <div className="text-xs text-red-600 space-y-1">
-                    <p>Harga yang disepakati: <span className="font-medium">{formatRupiah(req.fixed_price_idr ?? 0)}</span></p>
+                  <div className="text-[11px] text-red-600 space-y-1">
+                    <p>Harga disepakati: <span className="font-medium">{formatRupiah(req.fixed_price_idr ?? 0)}</span></p>
                     {req.cancellation_reason && <p>Alasan: {req.cancellation_reason}</p>}
                   </div>
                 </div>
               )}
 
-              {/* Info jastiper + harga — tampil di semua tab matched kecuali cancelled */}
+              {/* Info jastiper + harga */}
               {tab !== 'cancelled' && req.status === 'matched' && req.fixed_price_idr && (
-                <div className={`border rounded-xl p-4 sm:p-5 mb-4 ${
+                <div className={`border rounded-xl p-3 sm:p-4 mb-3 ${
                   tab === 'matched' ? 'bg-gray-50 border-gray-200'
                   : tab === 'paid' ? 'bg-purple-50 border-purple-200'
                   : 'bg-green-50 border-green-200'
                 }`}>
                   {tab === 'matched' ? (
                     <>
-                      {/* Header */}
-                      <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center justify-between mb-3">
                         <p className="text-sm font-bold text-gray-900">Tagihan Anda</p>
                         {req.payment_expired_at && (
-                          <span className="text-xs text-gray-500 font-medium">⏱ {formatExpiry(req.payment_expired_at)}</span>
+                          <span className="text-[11px] text-gray-500 font-medium">⏱ {formatExpiry(req.payment_expired_at)}</span>
                         )}
                       </div>
 
-                      {/* Jastiper */}
                       {req.jastiper && (
-                        <div className="flex items-center gap-3 mb-4 pb-4 border-b border-gray-200">
+                        <div className="flex items-center gap-2 mb-3 pb-3 border-b border-gray-200">
                           {req.jastiper.avatar_url ? (
-                            <img src={req.jastiper.avatar_url} className="w-10 h-10 rounded-full object-cover shrink-0" />
+                            <img src={req.jastiper.avatar_url} className="w-9 h-9 rounded-full object-cover shrink-0" />
                           ) : (
-                            <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-sm font-semibold text-gray-600 uppercase shrink-0">
+                            <div className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center text-sm font-semibold text-gray-600 uppercase shrink-0">
                               {req.jastiper.full_name?.[0] ?? '?'}
                             </div>
                           )}
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold text-gray-900">{req.jastiper.full_name}</p>
+                            <p className="text-sm font-semibold text-gray-900 truncate">{req.jastiper.full_name}</p>
                             <div className="flex items-center gap-1 mt-0.5">
-                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-[#49BC9E] shrink-0">
+                              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-[#49BC9E] shrink-0">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                               </svg>
-                              <span className="text-xs text-[#64748B] font-medium">Jastiper</span>
+                              <span className="text-[11px] text-[#64748B] font-medium">Jastiper</span>
                             </div>
                           </div>
                           {req.jastiper.whatsapp_number && (
@@ -387,7 +379,7 @@ export default function MyRequestsPage() {
                               href={`https://wa.me/${req.jastiper.whatsapp_number.replace(/[^0-9]/g, '')}`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="bg-[#49BC9E] hover:bg-[#3da88d] text-white rounded-lg px-4 py-2 text-sm font-semibold transition-all shrink-0"
+                              className="bg-[#49BC9E] hover:bg-[#3da88d] text-white rounded-lg px-3 py-1.5 text-xs font-semibold transition-all shrink-0"
                             >
                               Hubungi
                             </a>
@@ -395,79 +387,66 @@ export default function MyRequestsPage() {
                         </div>
                       )}
 
-                      {/* Rincian harga */}
-                      <div className="space-y-3 mb-4">
+                      <div className="space-y-2 mb-3">
                         <div className="flex justify-between items-center">
-                          <span className="text-sm font-medium text-[#64748B]">Harga (Produk & Fee Jastiper)</span>
-                          <span className="text-sm font-semibold text-gray-900">{formatRupiah(req.fixed_price_idr)}</span>
+                          <span className="text-xs font-medium text-[#64748B]">Harga (Produk & Fee Jastiper)</span>
+                          <span className="text-xs font-semibold text-gray-900">{formatRupiah(req.fixed_price_idr)}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className="text-sm font-medium text-[#64748B]">Platform Fee (5%)</span>
-                          <span className="text-sm font-semibold text-gray-900">{formatRupiah(Math.round(req.fixed_price_idr * 0.05))}</span>
+                          <span className="text-xs font-medium text-[#64748B]">Platform Fee (5%)</span>
+                          <span className="text-xs font-semibold text-gray-900">{formatRupiah(Math.round(req.fixed_price_idr * 0.05))}</span>
                         </div>
-                        <div className="flex justify-between items-center pt-3 border-t border-gray-200">
-                          <span className="text-base font-bold text-gray-900">Total Tagihan</span>
-                          <span className="text-base font-bold text-gray-900">{formatRupiah(req.fixed_price_idr + Math.round(req.fixed_price_idr * 0.05))}</span>
+                        <div className="flex justify-between items-center pt-2 border-t border-gray-200">
+                          <span className="text-sm font-bold text-gray-900">Total Tagihan</span>
+                          <span className="text-sm font-bold text-gray-900">{formatRupiah(req.fixed_price_idr + Math.round(req.fixed_price_idr * 0.05))}</span>
                         </div>
                       </div>
 
-                      {/* Tombol bayar */}
                       {req.payment_proof_url ? (
-                        <div className="bg-orange-50 border border-orange-200 rounded-lg px-4 py-3 text-center">
-                          <p className="text-sm font-medium text-orange-700">Bukti transfer sedang direview admin</p>
-                          <p className="text-xs text-orange-500 mt-1">Review akan selesai dalam 1x24 jam</p>
+                        <div className="bg-orange-50 border border-orange-200 rounded-lg px-3 py-2.5 text-center">
+                          <p className="text-xs font-medium text-orange-700">Bukti transfer sedang direview admin</p>
+                          <p className="text-[11px] text-orange-500 mt-0.5">Review akan selesai dalam 1x24 jam</p>
                         </div>
                       ) : (
                         <>
                           <button
                             onClick={() => req.order_id ? router.push(`/orders/${req.order_id}/pay`) : router.push('/orders')}
-                            className="w-full bg-[#49BC9E] hover:bg-[#3da88d] text-white rounded-xl py-3 text-sm font-semibold transition-all"
+                            className="w-full bg-[#49BC9E] hover:bg-[#3da88d] text-white rounded-xl py-2.5 text-sm font-semibold transition-all"
                           >
                             Bayar Sekarang
                           </button>
-                          <p className="text-xs text-gray-400 text-center mt-2">
-                            Pesanan akan dibatalkan otomatis jika pembayaran tidak dilakukan sebelum waktu habis.
+                          <p className="text-[11px] text-gray-400 text-center mt-2">
+                            Pesanan dibatalkan otomatis jika waktu pembayaran habis.
                           </p>
                         </>
                       )}
                     </>
                   ) : (
                     <>
-                      {/* Header — konsisten dengan matched: label kiri, tanpa elemen kanan */}
-                      <div className="flex items-center justify-between mb-4">
-                        <p className={`text-sm font-bold ${
-                          tab === 'paid' ? 'text-purple-900' : 'text-green-900'
-                        }`}>
+                      <div className="flex items-center justify-between mb-3">
+                        <p className={`text-sm font-bold ${tab === 'paid' ? 'text-purple-900' : 'text-green-900'}`}>
                           {tab === 'paid' ? 'Sedang Diproses Jastiper' : 'Order Selesai'}
                         </p>
                       </div>
 
-                      {/* Jastiper — sama persis strukturnya dengan tab matched */}
                       {req.jastiper && (
-                        <div className={`flex items-center gap-3 mb-4 pb-4 border-b ${
-                          tab === 'paid' ? 'border-purple-200' : 'border-green-200'
-                        }`}>
+                        <div className={`flex items-center gap-2 mb-3 pb-3 border-b ${tab === 'paid' ? 'border-purple-200' : 'border-green-200'}`}>
                           {req.jastiper.avatar_url ? (
-                            <img src={req.jastiper.avatar_url} className="w-10 h-10 rounded-full object-cover shrink-0" />
+                            <img src={req.jastiper.avatar_url} className="w-9 h-9 rounded-full object-cover shrink-0" />
                           ) : (
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold uppercase shrink-0 ${
-                              tab === 'paid' ? 'bg-purple-200 text-purple-700' : 'bg-green-200 text-green-700'
-                            }`}>
+                            <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold uppercase shrink-0 ${tab === 'paid' ? 'bg-purple-200 text-purple-700' : 'bg-green-200 text-green-700'}`}>
                               {req.jastiper.full_name?.[0] ?? '?'}
                             </div>
                           )}
                           <div className="flex-1 min-w-0">
-                            <p className={`text-sm font-semibold ${
-                              tab === 'paid' ? 'text-purple-900' : 'text-green-900'
-                            }`}>{req.jastiper.full_name}</p>
+                            <p className={`text-sm font-semibold truncate ${tab === 'paid' ? 'text-purple-900' : 'text-green-900'}`}>{req.jastiper.full_name}</p>
                             <div className="flex items-center gap-1 mt-0.5">
-                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className={`shrink-0 ${tab === 'paid' ? 'text-purple-400' : 'text-green-500'}`}>
+                              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className={`shrink-0 ${tab === 'paid' ? 'text-purple-400' : 'text-green-500'}`}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                               </svg>
-                              <span className={`text-xs font-medium ${
-                                tab === 'paid' ? 'text-purple-600' : 'text-green-600'
-                              }`}>
-                                {tab === 'paid' ? 'Jastiper sedang memproses pesananmu' : 'Jastiper yang mengambil request ini'}
+                              {/* ✅ FIX: teks lebih pendek di mobile agar tidak wrap buruk */}
+                              <span className={`text-[11px] font-medium ${tab === 'paid' ? 'text-purple-600' : 'text-green-600'}`}>
+                                {tab === 'paid' ? 'Memproses pesananmu' : 'Jastiper kamu'}
                               </span>
                             </div>
                           </div>
@@ -476,9 +455,7 @@ export default function MyRequestsPage() {
                               href={`https://wa.me/${req.jastiper.whatsapp_number.replace(/[^0-9]/g, '')}`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className={`text-white rounded-lg px-4 py-2 text-sm font-semibold transition-all shrink-0 ${
-                                tab === 'paid' ? 'bg-purple-500 hover:bg-purple-600' : 'bg-[#49BC9E] hover:bg-[#3da88d]'
-                              }`}
+                              className={`text-white rounded-lg px-3 py-1.5 text-xs font-semibold transition-all shrink-0 ${tab === 'paid' ? 'bg-purple-500 hover:bg-purple-600' : 'bg-[#49BC9E] hover:bg-[#3da88d]'}`}
                             >
                               Hubungi
                             </a>
@@ -486,45 +463,27 @@ export default function MyRequestsPage() {
                         </div>
                       )}
 
-                      {/* Rincian harga — sama persis strukturnya dengan tab matched */}
-                      <div className="space-y-3 mb-4">
-                        <div className="flex justify-between items-start">
-                          <div className="min-w-0 flex-1 mr-3">
-                            <span className={`text-sm font-medium ${
-                              tab === 'paid' ? 'text-purple-700' : 'text-green-700'
-                            }`}>Harga fix (all-in)</span>
-                            <p className={`text-[11px] mt-0.5 ${
-                              tab === 'paid' ? 'text-purple-500' : 'text-green-500'
-                            }`}>Sudah termasuk harga barang, service fee jastiper & ongkir</p>
+                      <div className="space-y-2 mb-3">
+                        <div className="flex justify-between items-start gap-2">
+                          <div className="min-w-0 flex-1">
+                            <span className={`text-xs font-medium ${tab === 'paid' ? 'text-purple-700' : 'text-green-700'}`}>Harga fix (all-in)</span>
+                            <p className={`text-[11px] mt-0.5 ${tab === 'paid' ? 'text-purple-500' : 'text-green-500'}`}>Termasuk barang, fee jastiper & ongkir</p>
                           </div>
-                          <span className={`text-sm font-semibold shrink-0 ${
-                            tab === 'paid' ? 'text-purple-900' : 'text-green-900'
-                          }`}>{formatRupiah(req.fixed_price_idr)}</span>
+                          <span className={`text-xs font-semibold shrink-0 ${tab === 'paid' ? 'text-purple-900' : 'text-green-900'}`}>{formatRupiah(req.fixed_price_idr)}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className={`text-sm font-medium ${
-                            tab === 'paid' ? 'text-purple-700' : 'text-green-700'
-                          }`}>Platform fee Jastipal (5%)</span>
-                          <span className={`text-sm font-semibold ${
-                            tab === 'paid' ? 'text-purple-900' : 'text-green-900'
-                          }`}>{formatRupiah(Math.round(req.fixed_price_idr * 0.05))}</span>
+                          <span className={`text-xs font-medium ${tab === 'paid' ? 'text-purple-700' : 'text-green-700'}`}>Platform fee (5%)</span>
+                          <span className={`text-xs font-semibold ${tab === 'paid' ? 'text-purple-900' : 'text-green-900'}`}>{formatRupiah(Math.round(req.fixed_price_idr * 0.05))}</span>
                         </div>
-                        <div className={`flex justify-between items-center pt-3 border-t ${
-                          tab === 'paid' ? 'border-purple-200' : 'border-green-200'
-                        }`}>
-                          <span className={`text-base font-bold ${
-                            tab === 'paid' ? 'text-purple-900' : 'text-green-900'
-                          }`}>Total {tab === 'selesai' ? 'dibayar' : 'tagihan'}</span>
-                          <span className={`text-base font-bold ${
-                            tab === 'paid' ? 'text-purple-900' : 'text-green-900'
-                          }`}>{formatRupiah(req.fixed_price_idr + Math.round(req.fixed_price_idr * 0.05))}</span>
+                        <div className={`flex justify-between items-center pt-2 border-t ${tab === 'paid' ? 'border-purple-200' : 'border-green-200'}`}>
+                          <span className={`text-sm font-bold ${tab === 'paid' ? 'text-purple-900' : 'text-green-900'}`}>Total {tab === 'selesai' ? 'dibayar' : 'tagihan'}</span>
+                          <span className={`text-sm font-bold ${tab === 'paid' ? 'text-purple-900' : 'text-green-900'}`}>{formatRupiah(req.fixed_price_idr + Math.round(req.fixed_price_idr * 0.05))}</span>
                         </div>
                       </div>
 
-                      {/* Pesan info di bawah — tidak dihilangkan */}
                       {tab === 'paid' && (
                         <p className="text-[11px] text-purple-500 text-center">
-                          Jastiper akan mengupdate status pesanan saat barang siap dikirim, Cek halaman pesanan untuk melihat status pesananmu
+                          Jastiper akan update status saat barang siap dikirim.
                         </p>
                       )}
                       {tab === 'selesai' && (
@@ -539,20 +498,20 @@ export default function MyRequestsPage() {
 
               {/* Catatan */}
               {req.notes && (
-                <div className="mb-4">
-                  <p className="text-sm font-semibold text-gray-900 mb-1">Catatan:</p>
-                  <p className="text-sm text-gray-500">{req.notes}</p>
+                <div className="mb-3">
+                  <p className="text-xs font-semibold text-gray-900 mb-1">Catatan:</p>
+                  <p className="text-xs text-gray-500">{req.notes}</p>
                 </div>
               )}
 
               {/* Footer */}
               <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                <p className="text-xs text-gray-400">{formatDate(req.created_at)}</p>
+                <p className="text-[11px] text-gray-400">{formatDate(req.created_at)}</p>
                 {req.status === 'open' && (
                   <button
                     onClick={() => handleCancel(req.id)}
                     disabled={cancellingId === req.id}
-                    className="bg-[#49BC9E] hover:bg-[#3da88d] disabled:opacity-50 transition-colors text-white text-sm font-semibold px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg"
+                    className="bg-[#49BC9E] hover:bg-[#3da88d] disabled:opacity-50 transition-colors text-white text-xs font-semibold px-4 py-2 rounded-lg"
                   >
                     {cancellingId === req.id ? 'Membatalkan...' : 'Batalkan'}
                   </button>

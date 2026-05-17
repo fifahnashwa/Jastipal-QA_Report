@@ -12,7 +12,6 @@ export default function LoginPage() {
   const [form, setForm] = useState({ email: '', password: '' })
 
   useEffect(() => {
-    // tampilkan pesan jika user difreeze
     if (searchParams.get('error') === 'frozen') {
       setError('Akun kamu telah dinonaktifkan. Hubungi admin untuk informasi lebih lanjut.')
     }
@@ -33,7 +32,6 @@ export default function LoginPage() {
       return
     }
 
-    // cek is_frozen dan is_admin
     const { data: userData } = await supabase
       .from('users')
       .select('is_admin, is_frozen')
@@ -63,15 +61,15 @@ export default function LoginPage() {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center"
+      className="min-h-screen flex items-center justify-center px-4 py-8 sm:py-0"
       style={{ backgroundColor: '#49BC9E', fontFamily: "'Inter', sans-serif" }}
     >
       <div
-        className="bg-white p-8 rounded-2xl w-full shadow-md"
+        className="bg-white w-full shadow-md rounded-2xl p-6 sm:p-8"
         style={{ maxWidth: '420px' }}
       >
-        <h1 className="text-2xl font-bold mb-1" style={{ color: '#1F2937' }}>Masuk Akun</h1>
-        <p className="text-sm mb-6" style={{ color: '#6B7280' }}>Selamat datang kembali di Jastipal</p>
+        <h1 className="text-xl sm:text-2xl font-bold mb-1" style={{ color: '#1F2937' }}>Masuk Akun</h1>
+        <p className="text-sm mb-5 sm:mb-6" style={{ color: '#6B7280' }}>Selamat datang kembali di Jastipal</p>
 
         {error && (
           <div className="rounded-lg px-4 py-3 mb-4" style={{ backgroundColor: '#FEE2E2', border: '1px solid #FECACA' }}>
@@ -85,11 +83,7 @@ export default function LoginPage() {
             type="email"
             placeholder="Masukkan email"
             className="w-full rounded-lg px-3 py-2.5 text-sm outline-none transition-all"
-            style={{
-              border: '1px solid #D1D5DB',
-              color: '#1F2937',
-              backgroundColor: '#FFFFFF',
-            }}
+            style={{ border: '1px solid #D1D5DB', color: '#1F2937', backgroundColor: '#FFFFFF' }}
             onFocus={e => (e.currentTarget.style.borderColor = '#49BC9E')}
             onBlur={e => (e.currentTarget.style.borderColor = '#D1D5DB')}
             value={form.email}
@@ -97,17 +91,13 @@ export default function LoginPage() {
           />
         </div>
 
-        <div className="mb-6">
+        <div className="mb-5 sm:mb-6">
           <label className="text-sm font-medium mb-1 block" style={{ color: '#1F2937' }}>Password</label>
           <input
             type="password"
             placeholder="Masukkan password"
             className="w-full rounded-lg px-3 py-2.5 text-sm outline-none transition-all"
-            style={{
-              border: '1px solid #D1D5DB',
-              color: '#1F2937',
-              backgroundColor: '#FFFFFF',
-            }}
+            style={{ border: '1px solid #D1D5DB', color: '#1F2937', backgroundColor: '#FFFFFF' }}
             onFocus={e => (e.currentTarget.style.borderColor = '#49BC9E')}
             onBlur={e => (e.currentTarget.style.borderColor = '#D1D5DB')}
             value={form.password}
@@ -139,11 +129,7 @@ export default function LoginPage() {
         <button
           onClick={handleGoogleLogin}
           className="w-full rounded-lg py-3 text-sm font-medium transition-all flex items-center justify-center gap-2"
-          style={{
-            border: '1px solid #D1D5DB',
-            color: '#1F2937',
-            backgroundColor: '#FFFFFF',
-          }}
+          style={{ border: '1px solid #D1D5DB', color: '#1F2937', backgroundColor: '#FFFFFF' }}
           onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#F9FAFB')}
           onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#FFFFFF')}
         >

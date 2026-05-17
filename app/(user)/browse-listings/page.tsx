@@ -53,7 +53,6 @@ function daysLeft(date: string) {
   return { label: `${days} hari lagi`, urgent: false }
 }
 
-// Icon components
 function IconSearch() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -335,13 +334,14 @@ export default function BrowseListingsPage() {
   }
 
   return (
-    <div className="max-w-2xl">
+    // ✅ FIX: w-full menggantikan max-w-2xl
+    <div className="w-full">
 
-      {/* Modal order */}
+      {/* Modal order — ✅ FIX: muncul dari bawah di mobile (sheet), centered di sm */}
       {selectedProduct && (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-2xl border border-gray-200 w-full max-w-md shadow-xl">
-            <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+        <div className="fixed inset-0 z-40 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm p-0 sm:p-4">
+          <div className="bg-white rounded-t-2xl sm:rounded-2xl border border-gray-200 w-full sm:max-w-md shadow-xl max-h-[92vh] overflow-y-auto">
+            <div className="p-4 sm:p-6 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white z-10">
               <h2 className="text-base font-bold text-gray-900">Konfirmasi Order</h2>
               <button
                 onClick={() => { setSelectedProduct(null); setOrderError('') }}
@@ -350,20 +350,20 @@ export default function BrowseListingsPage() {
                 <IconX size={20} />
               </button>
             </div>
-            <div className="p-6 space-y-4">
+            <div className="p-4 sm:p-6 space-y-4">
 
               {/* Product info */}
               <div className="flex gap-3">
                 {selectedProduct.product.image_url ? (
-                  <img src={selectedProduct.product.image_url} className="w-16 h-16 rounded-xl object-cover shrink-0" />
+                  <img src={selectedProduct.product.image_url} className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl object-cover shrink-0" />
                 ) : (
-                  <div className="w-16 h-16 rounded-xl bg-gray-100 flex items-center justify-center shrink-0">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-gray-100 flex items-center justify-center shrink-0">
                     <IconImage />
                   </div>
                 )}
-                <div>
-                  <p className="font-medium text-gray-900 text-sm">{selectedProduct.product.product_name}</p>
-                  <p className="text-xs text-gray-500">{selectedProduct.trip.title}</p>
+                <div className="min-w-0">
+                  <p className="font-medium text-gray-900 text-sm line-clamp-2">{selectedProduct.product.product_name}</p>
+                  <p className="text-xs text-gray-500 truncate">{selectedProduct.trip.title}</p>
                   <p className="text-xs text-gray-500">{selectedProduct.trip.trip_country} · Tiba {formatDate(selectedProduct.trip.arrival_date)}</p>
                 </div>
               </div>
@@ -397,7 +397,7 @@ export default function BrowseListingsPage() {
                     onClick={() => setQuantity(q => Math.min(selectedProduct.product.stock ?? 1, q + 1))}
                     className="w-8 h-8 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 flex items-center justify-center text-lg font-medium transition-colors"
                   >+</button>
-                  <span className="text-xs text-gray-400">Stok tersedia: {selectedProduct.product.stock}</span>
+                  <span className="text-xs text-gray-400">Stok: {selectedProduct.product.stock}</span>
                 </div>
               </div>
 
@@ -418,11 +418,11 @@ export default function BrowseListingsPage() {
                       {buyerCity.trim().toLowerCase() === selectedProduct.trip.arrival_city.toLowerCase()
                         ? (
                           <span className="text-[#2d9b7f] flex items-center gap-1">
-                            <IconCheckCircle /> Sekota dengan jastiper — ongkir Rp 25.000
+                            <IconCheckCircle /> Sekota — ongkir Rp 25.000
                           </span>
                         ) : (
                           <span className="text-orange-500 flex items-center gap-1">
-                            <IconTruck /> Beda kota dengan jastiper ({selectedProduct.trip.arrival_city}) — ongkir Rp 50.000
+                            <IconTruck /> Beda kota ({selectedProduct.trip.arrival_city}) — ongkir Rp 50.000
                           </span>
                         )
                       }
@@ -450,7 +450,7 @@ export default function BrowseListingsPage() {
                 const platformFee = Math.round(selectedProduct.product.total_price_idr * quantity * 0.05)
                 const total = (selectedProduct.product.total_price_idr * quantity) + platformFee + domesticShipping
                 return (
-                  <div className="bg-gray-50 rounded-xl p-4 space-y-1.5">
+                  <div className="bg-gray-50 rounded-xl p-3 sm:p-4 space-y-1.5">
                     <div className="flex justify-between text-xs text-gray-500">
                       <span>Harga produk {quantity > 1 ? `(x${quantity})` : ''}</span>
                       <span>{formatRupiah(selectedProduct.product.product_price_idr * quantity)}</span>
@@ -490,7 +490,7 @@ export default function BrowseListingsPage() {
 
               {orderError && <p className="text-red-500 text-sm">{orderError}</p>}
 
-              <div className="flex gap-2">
+              <div className="flex gap-2 pb-2">
                 <button
                   onClick={() => { setSelectedProduct(null); setOrderError('') }}
                   className="flex-1 border border-gray-200 text-gray-600 rounded-lg py-2.5 text-sm font-medium hover:bg-gray-50 transition-colors"
@@ -511,14 +511,14 @@ export default function BrowseListingsPage() {
       )}
 
       {/* Header */}
-      <div className="mb-5">
-        <h1 className="text-2xl font-bold text-gray-900">Jelajahi Produk</h1>
-        <p className="text-sm text-gray-500 mt-1">Temukan produk yang telah disediakan oleh jastiper di seluruh negeri!</p>
+      <div className="mb-4 sm:mb-5">
+        <h1 className="text-lg sm:text-2xl font-bold text-gray-900">Jelajahi Produk</h1>
+        <p className="text-xs sm:text-sm text-gray-500 mt-0.5 sm:mt-1">Temukan produk yang telah disediakan oleh jastiper di seluruh negeri!</p>
       </div>
 
       {/* Success toast */}
       {orderSuccess && (
-        <div className="mb-5 bg-[#e6f7f3] border border-[#b3e8d9] rounded-xl px-4 py-3 flex items-center justify-between">
+        <div className="mb-4 bg-[#e6f7f3] border border-[#b3e8d9] rounded-xl px-4 py-3 flex items-center justify-between">
           <p className="text-sm text-[#2d9b7f] font-medium">{orderSuccess}</p>
           <button
             onClick={() => { setOrderSuccess(''); router.push('/orders') }}
@@ -530,7 +530,7 @@ export default function BrowseListingsPage() {
       )}
 
       {/* Search */}
-      <div className="relative mb-4">
+      <div className="relative mb-3">
         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
           <IconSearch />
         </span>
@@ -548,36 +548,36 @@ export default function BrowseListingsPage() {
         )}
       </div>
 
-      {/* Filters */}
-      <div className="flex gap-2 mb-6 flex-wrap">
-        <div className="relative">
+      {/* Filters — ✅ FIX: scroll horizontal di mobile agar tidak wrap */}
+      <div className="flex gap-2 mb-5 overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 pb-1">
+        <div className="relative shrink-0">
           <select
             value={filterCountry}
             onChange={e => setFilterCountry(e.target.value)}
-            className="appearance-none text-sm border border-gray-200 rounded-lg pl-4 pr-9 py-2.5 bg-white text-gray-700 outline-none focus:border-[#49BC9E] transition-colors cursor-pointer"
+            className="appearance-none text-sm border border-gray-200 rounded-lg pl-3 pr-8 py-2 bg-white text-gray-700 outline-none focus:border-[#49BC9E] transition-colors cursor-pointer"
           >
             <option value="">Semua negara</option>
             {countries.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+          <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
             <IconChevronDown />
           </span>
         </div>
-        <div className="relative">
+        <div className="relative shrink-0">
           <select
             value={sortBy}
             onChange={e => setSortBy(e.target.value as any)}
-            className="appearance-none text-sm border border-gray-200 rounded-lg pl-4 pr-9 py-2.5 bg-white text-gray-700 outline-none focus:border-[#49BC9E] transition-colors cursor-pointer"
+            className="appearance-none text-sm border border-gray-200 rounded-lg pl-3 pr-8 py-2 bg-white text-gray-700 outline-none focus:border-[#49BC9E] transition-colors cursor-pointer"
           >
             <option value="newest">Terbaru</option>
             <option value="arrival_soon">Tiba paling cepat</option>
           </select>
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+          <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
             <IconChevronDown />
           </span>
         </div>
-        <div className="flex items-center ml-auto">
-          <p className="text-xs text-gray-500">{trips.length} trip tersedia</p>
+        <div className="flex items-center ml-auto shrink-0">
+          <p className="text-xs text-gray-500 whitespace-nowrap">{trips.length} trip tersedia</p>
         </div>
       </div>
 
@@ -594,7 +594,7 @@ export default function BrowseListingsPage() {
           <p className="text-sm text-gray-500">Tidak ada trip yang tersedia</p>
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {trips.map(trip => {
             const dl = daysLeft(trip.arrival_date)
             return (
@@ -602,69 +602,69 @@ export default function BrowseListingsPage() {
 
                 {/* Trip cover image */}
                 {trip.image_url && (
-                  <img src={trip.image_url} className="w-full h-52 object-cover" alt={trip.title} />
+                  <img src={trip.image_url} className="w-full h-36 sm:h-52 object-cover" alt={trip.title} />
                 )}
 
                 {/* Trip header */}
-                <div className="p-5 border-b border-gray-100">
-                  <h2 className="text-xl font-bold text-gray-900 mb-4">{trip.title}</h2>
+                <div className="p-4 sm:p-5 border-b border-gray-100">
+                  <h2 className="text-base sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4">{trip.title}</h2>
 
-                 {/* Stats grid */}
-<div className="grid grid-cols-3 gap-2 mb-4">
-  <div className="bg-gray-50 border border-gray-100 rounded-xl px-4 py-3">
-    <div className="flex items-center gap-1 text-gray-400 mb-1">
-      <IconMapPin />
-      <span className="text-xs">Negara</span>
-    </div>
-    <p className="text-sm font-semibold text-gray-900">{trip.trip_country}</p>
-  </div>
-  <div className="bg-gray-50 border border-gray-100 rounded-xl px-4 py-3">
-    <div className="flex items-center gap-1 text-gray-400 mb-1">
-      <IconPlane />
-      <span className="text-xs">Tanggal Tiba</span>
-    </div>
-    <p className={`text-sm font-semibold ${dl.urgent ? 'text-orange-500' : 'text-gray-900'}`}>
-      {formatDate(trip.arrival_date)}
-    </p>
-  </div>
-  <div className="bg-gray-50 border border-gray-100 rounded-xl px-4 py-3">
-    <div className="flex items-center gap-1 text-gray-400 mb-1">
-      <IconPackage />
-      <span className="text-xs">Produk</span>
-    </div>
-    <p className="text-sm font-semibold text-gray-900">{trip.products.length} item</p>
-  </div>
-</div>
+                  {/* Stats grid — ✅ FIX: lebih compact di mobile */}
+                  <div className="grid grid-cols-3 gap-1.5 sm:gap-2 mb-3 sm:mb-4">
+                    <div className="bg-gray-50 border border-gray-100 rounded-xl px-2 sm:px-4 py-2 sm:py-3">
+                      <div className="flex items-center gap-1 text-gray-400 mb-1">
+                        <IconMapPin />
+                        <span className="text-[10px] sm:text-xs">Negara</span>
+                      </div>
+                      <p className="text-xs sm:text-sm font-semibold text-gray-900 truncate">{trip.trip_country}</p>
+                    </div>
+                    <div className="bg-gray-50 border border-gray-100 rounded-xl px-2 sm:px-4 py-2 sm:py-3">
+                      <div className="flex items-center gap-1 text-gray-400 mb-1">
+                        <IconPlane />
+                        <span className="text-[10px] sm:text-xs hidden xs:inline">Tiba</span>
+                      </div>
+                      <p className={`text-[11px] sm:text-sm font-semibold leading-tight ${dl.urgent ? 'text-orange-500' : 'text-gray-900'}`}>
+                        {formatDate(trip.arrival_date)}
+                      </p>
+                    </div>
+                    <div className="bg-gray-50 border border-gray-100 rounded-xl px-2 sm:px-4 py-2 sm:py-3">
+                      <div className="flex items-center gap-1 text-gray-400 mb-1">
+                        <IconPackage />
+                        <span className="text-[10px] sm:text-xs">Produk</span>
+                      </div>
+                      <p className="text-xs sm:text-sm font-semibold text-gray-900">{trip.products.length} item</p>
+                    </div>
+                  </div>
 
                   {/* Deskripsi */}
                   {trip.description && (
-                    <div className="mb-4">
+                    <div className="mb-3 sm:mb-4">
                       <p className="text-xs text-gray-400 mb-1">Deskripsi</p>
-                      <p className="text-sm text-gray-700">{trip.description}</p>
+                      <p className="text-xs sm:text-sm text-gray-700 line-clamp-3 sm:line-clamp-none">{trip.description}</p>
                     </div>
                   )}
 
                   {/* Jastiper */}
                   {trip.jastiper && (
-                    <div className="flex items-center gap-2 pt-4 border-t border-gray-100">
-                      <span className="text-gray-400">
+                    <div className="flex items-center gap-2 pt-3 sm:pt-4 border-t border-gray-100">
+                      <span className="text-gray-400 shrink-0">
                         <IconUser />
                       </span>
                       {trip.jastiper.avatar_url ? (
-                        <img src={trip.jastiper.avatar_url} className="w-7 h-7 rounded-full object-cover" />
+                        <img src={trip.jastiper.avatar_url} className="w-6 h-6 sm:w-7 sm:h-7 rounded-full object-cover shrink-0" />
                       ) : (
-                        <div className="w-7 h-7 rounded-full bg-[#e6f7f3] flex items-center justify-center text-xs font-medium text-[#49BC9E] uppercase">
+                        <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[#e6f7f3] flex items-center justify-center text-xs font-medium text-[#49BC9E] uppercase shrink-0">
                           {trip.jastiper.full_name?.[0] ?? '?'}
                         </div>
                       )}
-                      <p className="text-xs text-gray-600 flex-1">{trip.jastiper.full_name}</p>
+                      <p className="text-xs text-gray-600 flex-1 truncate">{trip.jastiper.full_name}</p>
                       {trip.jastiper.whatsapp_number && (
                         <a
                           href={`https://wa.me/${trip.jastiper.whatsapp_number.replace(/[^0-9]/g, '')}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={e => e.stopPropagation()}
-                          className="flex items-center gap-1.5 bg-[#49BC9E] hover:bg-[#3da88d] text-white rounded-lg px-2.5 py-1.5 text-[11px] font-medium transition-colors"
+                          className="flex items-center gap-1.5 bg-[#49BC9E] hover:bg-[#3da88d] text-white rounded-lg px-2.5 py-1.5 text-[11px] font-medium transition-colors shrink-0"
                         >
                           <IconWhatsapp />
                           WA
@@ -677,33 +677,34 @@ export default function BrowseListingsPage() {
                 {/* Products */}
                 <div className="divide-y divide-gray-100">
                   {trip.products.map(product => (
-                    <div key={product.id} className="flex gap-3 p-4">
+                    <div key={product.id} className="flex gap-2 sm:gap-3 p-3 sm:p-4">
                       {product.image_url ? (
-                        <img src={product.image_url} className="w-14 h-14 rounded-lg object-cover shrink-0" />
+                        <img src={product.image_url} className="w-12 h-12 sm:w-14 sm:h-14 rounded-lg object-cover shrink-0" />
                       ) : (
-                        <div className="w-14 h-14 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
+                        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
                           <IconImage />
                         </div>
                       )}
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">{product.product_name}</p>
+                        <p className="text-xs sm:text-sm font-medium text-gray-900 line-clamp-2">{product.product_name}</p>
                         <button
                           onClick={() => router.push(`/trips/${trip.id}/products/${product.id}`)}
-                          className="text-xs text-[#49BC9E] hover:text-[#3da88d] hover:underline text-left transition-colors"
+                          className="text-[11px] text-[#49BC9E] hover:text-[#3da88d] hover:underline text-left transition-colors"
                         >
                           Lihat detail →
                         </button>
                         {product.description && (
-                          <p className="text-xs text-gray-400 italic mt-0.5">{product.description}</p>
+                          <p className="text-[11px] text-gray-400 italic mt-0.5 line-clamp-1">{product.description}</p>
                         )}
-                        <p className="text-xs text-gray-400 mt-0.5">Stok: {product.stock}</p>
+                        <p className="text-[11px] text-gray-400 mt-0.5">Stok: {product.stock}</p>
                       </div>
-                      <div className="flex flex-col items-end gap-2 shrink-0">
-                        <p className="text-sm font-bold text-gray-900">{formatRupiah(product.total_price_idr)}</p>
-                        <p className="text-xs text-gray-400">+5% fee</p>
+                      {/* ✅ FIX: kolom harga+tombol lebih rapat di mobile */}
+                      <div className="flex flex-col items-end gap-1.5 shrink-0">
+                        <p className="text-xs sm:text-sm font-bold text-gray-900 text-right">{formatRupiah(product.total_price_idr)}</p>
+                        <p className="text-[10px] text-gray-400">+5% fee</p>
                         <button
                           onClick={() => { setSelectedProduct({ product, trip }); setOrderError('') }}
-                          className="bg-[#49BC9E] hover:bg-[#3da88d] text-white rounded-lg px-3 py-1.5 text-xs font-medium transition-colors"
+                          className="bg-[#49BC9E] hover:bg-[#3da88d] text-white rounded-lg px-2.5 sm:px-3 py-1.5 text-[11px] sm:text-xs font-medium transition-colors"
                         >
                           Order
                         </button>

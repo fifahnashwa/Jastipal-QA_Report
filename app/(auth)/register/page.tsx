@@ -28,7 +28,6 @@ export default function RegisterPage() {
       return
     }
 
-    // tampilkan popup verifikasi email
     setRegisteredEmail(form.email)
     setShowPopup(true)
     setLoading(false)
@@ -43,33 +42,32 @@ export default function RegisterPage() {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center"
+      className="min-h-screen flex items-center justify-center px-4 py-8 sm:py-0"
       style={{ backgroundColor: '#49BC9E', fontFamily: "'Inter', sans-serif" }}
     >
       {/* Popup verifikasi email */}
       {showPopup && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4" style={{ backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
-          <div className="bg-white rounded-2xl p-8 w-full shadow-xl text-center" style={{ maxWidth: '380px' }}>
-            {/* icon */}
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center px-4 pb-4 sm:pb-0" style={{ backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
+          <div className="bg-white rounded-2xl p-6 sm:p-8 w-full shadow-xl text-center" style={{ maxWidth: '380px' }}>
             <div
-              className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
+              className="w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center mx-auto mb-4"
               style={{ backgroundColor: '#F0FDF4' }}
             >
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#49BC9E" strokeWidth="2">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#49BC9E" strokeWidth="2">
                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
                 <polyline points="22,6 12,13 2,6"/>
               </svg>
             </div>
-            <h2 className="text-lg font-bold mb-2" style={{ color: '#1F2937' }}>
+            <h2 className="text-base sm:text-lg font-bold mb-2" style={{ color: '#1F2937' }}>
               Cek email kamu!
             </h2>
             <p className="text-sm mb-1" style={{ color: '#6B7280' }}>
               Kami telah mengirim link verifikasi ke
             </p>
-            <p className="text-sm font-semibold mb-4" style={{ color: '#1F2937' }}>
+            <p className="text-sm font-semibold mb-4 break-all" style={{ color: '#1F2937' }}>
               {registeredEmail}
             </p>
-            <p className="text-xs mb-6" style={{ color: '#9CA3AF' }}>
+            <p className="text-xs mb-5" style={{ color: '#9CA3AF' }}>
               Klik link di email tersebut untuk mengaktifkan akun kamu. Cek folder spam jika tidak muncul dalam beberapa menit.
             </p>
             <a
@@ -85,11 +83,11 @@ export default function RegisterPage() {
 
       {/* Form register */}
       <div
-        className="bg-white p-8 rounded-2xl w-full shadow-md"
+        className="bg-white w-full shadow-md rounded-2xl p-6 sm:p-8"
         style={{ maxWidth: '420px' }}
       >
-        <h1 className="text-2xl font-bold mb-1" style={{ color: '#1F2937' }}>Daftar akun</h1>
-        <p className="text-sm mb-6" style={{ color: '#6B7280' }}>Bergabung dengan Jastipal</p>
+        <h1 className="text-xl sm:text-2xl font-bold mb-1" style={{ color: '#1F2937' }}>Daftar akun</h1>
+        <p className="text-sm mb-5 sm:mb-6" style={{ color: '#6B7280' }}>Bergabung dengan Jastipal</p>
 
         {error && (
           <div className="rounded-lg px-4 py-3 mb-4" style={{ backgroundColor: '#FEE2E2', border: '1px solid #FECACA' }}>
@@ -124,7 +122,7 @@ export default function RegisterPage() {
           />
         </div>
 
-        <div className="mb-6">
+        <div className="mb-5 sm:mb-6">
           <label className="text-sm font-medium mb-1 block" style={{ color: '#1F2937' }}>Password</label>
           <input
             type="password"
