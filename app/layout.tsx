@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   title: "Jastipal",
   description: "Platform jastip terpercaya di Indonesia",
    icons: {
-    icon: '/Logo Jastipal.svg',
+    icon: '/Logo Jastipal 1.svg',
   },
 };
 
