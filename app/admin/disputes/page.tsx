@@ -9,18 +9,27 @@ type Dispute = {
   reason: string
   status: 'open' | 'resolved' | 'rejected'
   resolution: string | null
+  bank_name: string | null
+  bank_account: string | null
+  raised_by: string
   created_at: string
   raised_by_user: { full_name: string; email: string } | null
   order: {
     product_name: string
     status: string
+    buyer_id: string | null
     buyer: { full_name: string } | null
-    jastiper: { full_name: string } | null
+    jastiper: { id: string; full_name: string } | null
+    pricing: { total_idr: number; platform_fee_idr: number; jastiper_amount: number } | null
   } | null
 }
 
 function formatDate(d: string) {
   return new Date(d).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+}
+
+function formatRupiah(n: number) {
+  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(n)
 }
 
 export default function AdminDisputesPage() {
@@ -54,7 +63,7 @@ export default function AdminDisputesPage() {
 
     const { data: disputesData } = await supabase
       .from('disputes')
-      .select('id, order_id, reason, status, resolution, created_at, raised_by')
+      .select('id, order_id, reason, status, resolution, created_at, raised_by, bank_name, bank_account')
       .eq('status', tab)
       .order('created_at', { ascending: false })
 
@@ -73,7 +82,7 @@ export default function AdminDisputesPage() {
     const orderIds = disputesData.map((d: any) => d.order_id)
     const { data: ordersData } = await supabase
       .from('orders')
-      .select('id, product_name, status, buyer_id, jastiper_id')
+      .select('id, product_name, status, buyer_id, jastiper_id, order_pricing(total_idr, platform_fee_idr)')
       .in('id', orderIds)
 
     const allUserIds = [...new Set([
@@ -90,21 +99,46 @@ export default function AdminDisputesPage() {
       ;(allUsers ?? []).forEach((u: any) => { orderUserMap[u.id] = u })
     }
 
+    // fetch escrow sebagai sumber harga (sama seperti disbursements)
+    const { data: escrowData } = await supabase
+      .from('escrow_transactions')
+      .select('order_id, amount_idr')
+      .in('order_id', orderIds)
+    const escrowMap: Record<string, number> = {}
+    ;(escrowData ?? []).forEach((e: any) => { escrowMap[e.order_id] = Number(e.amount_idr ?? 0) })
+
     const orderMap: Record<string, any> = {}
     ;(ordersData ?? []).forEach((o: any) => {
+      // prioritas: order_pricing → fallback ke escrow amount_idr
+      const opRow = o.order_pricing?.[0]
+      const escrowTotal = escrowMap[o.id] ?? 0
+      const total = opRow?.total_idr ? Number(opRow.total_idr) : escrowTotal
+      const fee = opRow?.platform_fee_idr
+        ? Number(opRow.platform_fee_idr)
+        : Math.round(escrowTotal - escrowTotal / 1.05)
+
       orderMap[o.id] = {
         product_name: o.product_name,
         status: o.status,
+        buyer_id: o.buyer_id ?? null,
         buyer: orderUserMap[o.buyer_id] ?? null,
-        jastiper: orderUserMap[o.jastiper_id] ?? null,
+        jastiper: o.jastiper_id
+          ? { id: o.jastiper_id, ...(orderUserMap[o.jastiper_id] ?? {}) }
+          : null,
+        pricing: total > 0
+          ? { total_idr: total, platform_fee_idr: fee, jastiper_amount: total - fee }
+          : null,
       }
     })
 
-    const mapped = disputesData.map((d: any) => ({
-      ...d,
-      raised_by_user: raisedByMap[d.raised_by] ?? null,
-      order: orderMap[d.order_id] ?? null,
-    }))
+    const mapped = disputesData.map((d: any) => {
+      const order = orderMap[d.order_id] ?? null
+      return {
+        ...d,
+        raised_by_user: raisedByMap[d.raised_by] ?? null,
+        order,
+      }
+    })
 
     setDisputes(mapped)
     setLoading(false)
@@ -197,20 +231,58 @@ export default function AdminDisputesPage() {
 
             <div className="p-6 space-y-4">
 
-              {/* Info dispute */}
+              {/* ── Info ringkas order ── */}
               <div className="bg-[#F1F5F9] rounded-xl p-4 space-y-2">
                 <p className="text-sm font-semibold text-[#0F172A]">{selected.order?.product_name}</p>
+                <p className="text-xs text-gray-400 font-mono">{selected.order_id}</p>
                 <p className="text-xs text-[#64748B]">
                   Buyer: {selected.order?.buyer?.full_name} · Jastiper: {selected.order?.jastiper?.full_name}
                 </p>
                 <p className="text-xs text-[#64748B]">
                   Dibuka oleh: <span className="font-medium text-gray-700">{selected.raised_by_user?.full_name}</span>
+                  {selected.raised_by === selected.order?.buyer_id && selected.raised_by !== selected.order?.jastiper?.id && (
+                    <span className="ml-2 bg-blue-100 text-blue-600 text-[10px] font-semibold px-2 py-0.5 rounded-full">sebagai Buyer</span>
+                  )}
+                  {selected.raised_by === selected.order?.jastiper?.id && selected.raised_by !== selected.order?.buyer_id && (
+                    <span className="ml-2 bg-teal-100 text-teal-600 text-[10px] font-semibold px-2 py-0.5 rounded-full">sebagai Jastiper</span>
+                  )}
+                  {selected.raised_by === selected.order?.buyer_id && selected.raised_by === selected.order?.jastiper?.id && (
+                    <span className="ml-2 bg-orange-100 text-orange-600 text-[10px] font-semibold px-2 py-0.5 rounded-full">Buyer & Jastiper</span>
+                  )}
                 </p>
                 <div className="pt-2 border-t border-gray-200">
                   <p className="text-xs text-gray-400 mb-1">Alasan:</p>
                   <p className="text-sm text-gray-700">{selected.reason}</p>
                 </div>
+
+                {/* Rekening pengaju (dari disputes.bank_name) */}
+                {selected.bank_name && (
+                  <div className="pt-2 border-t border-gray-200">
+                    <p className="text-xs text-gray-400 mb-1">Rekening pengaju:</p>
+                    <p className="text-sm font-medium text-gray-700">{selected.bank_name} - {selected.bank_account}</p>
+                  </div>
+                )}
+
               </div>
+
+              {/* ── Struk transaksi ── */}
+              {selected.order?.pricing && (
+                <div className="space-y-2 text-sm border border-[#E2E8F0] rounded-xl p-4">
+                  <p className="text-xs font-semibold text-gray-500 uppercase mb-2">Rincian Transaksi</p>
+                  <div className="flex justify-between text-gray-500">
+                    <span>Total Dibayar Buyer</span>
+                    <span>{formatRupiah(selected.order.pricing.total_idr)}</span>
+                  </div>
+                  <div className="flex justify-between text-gray-500">
+                    <span>Platform Fee (Jastipal)</span>
+                    <span className="text-red-500">- {formatRupiah(selected.order.pricing.platform_fee_idr)}</span>
+                  </div>
+                  <div className="flex justify-between font-bold text-gray-900 text-base pt-2 border-t border-dashed border-gray-200">
+                    <span>Total Transaksi</span>
+                    <span className="text-teal-600">{formatRupiah(selected.order.pricing.jastiper_amount)}</span>
+                  </div>
+                </div>
+              )}
 
               {/* Catatan keputusan */}
               <div>

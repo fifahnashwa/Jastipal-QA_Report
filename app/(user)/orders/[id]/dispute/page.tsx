@@ -27,6 +27,8 @@ export default function OpenDisputePage() {
   const [reason, setReason] = useState('')
   const [selectedReason, setSelectedReason] = useState('')
   const [existingDispute, setExistingDispute] = useState(false)
+  const [bankName, setBankName] = useState('')
+  const [bankAccount, setBankAccount] = useState('')
 
   useEffect(() => {
     async function init() {
@@ -49,13 +51,11 @@ export default function OpenDisputePage() {
 
       if (!orderData) { router.push('/orders'); return }
 
-      // cek apakah user terlibat di order ini
       if (orderData.buyer_id !== user.id && orderData.jastiper_id !== user.id) {
         router.push('/orders')
         return
       }
 
-      // cek apakah sudah ada dispute
       const { data: disputeData } = await supabase
         .from('disputes')
         .select('id')
@@ -80,6 +80,8 @@ export default function OpenDisputePage() {
       raised_by: userId,
       reason: reason,
       status: 'open',
+      bank_name: bankName || null,
+      bank_account: bankAccount || null,
     })
 
     if (insertError) {
@@ -104,7 +106,6 @@ export default function OpenDisputePage() {
   return (
     <div className="max-w-lg pb-12">
 
-      {/* Back + Title */}
       <button
         onClick={() => router.back()}
         className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 transition-colors mb-2"
@@ -120,7 +121,6 @@ export default function OpenDisputePage() {
         <p className="text-sm text-gray-500">{order.product_name}</p>
       </div>
 
-      {/* Existing dispute warning */}
       {existingDispute && (
         <div className="bg-yellow-50 border border-yellow-200 rounded-xl px-4 py-3 mb-5">
           <p className="text-sm text-yellow-700 font-medium">⚠️ Dispute sudah pernah dibuka untuk order ini</p>
@@ -128,7 +128,6 @@ export default function OpenDisputePage() {
         </div>
       )}
 
-      {/* Success state */}
       {success && (
         <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-3 mb-5">
           <p className="text-sm text-green-700 font-medium">✓ Dispute berhasil dibuka! Admin akan segera meninjau.</p>
@@ -137,7 +136,6 @@ export default function OpenDisputePage() {
 
       {!existingDispute && !success && (
         <>
-          {/* Perhatian banner */}
           <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-4">
             <p className="text-sm font-semibold text-red-700 mb-1">Perhatian</p>
             <p className="text-xs text-red-600">
@@ -145,11 +143,9 @@ export default function OpenDisputePage() {
             </p>
           </div>
 
-          {/* Card form */}
           <div className="bg-white rounded-xl border border-gray-200 p-6 mb-4">
             <h2 className="text-base font-bold text-gray-900 mb-4">Detail Komplain</h2>
 
-            {/* Pilih Alasan */}
             <label className="block text-sm font-medium text-gray-700 mb-3">
               Pilih Alasan <span className="text-red-400">*</span>
             </label>
@@ -182,7 +178,6 @@ export default function OpenDisputePage() {
               ))}
             </div>
 
-            {/* Textarea — tampil saat Lainnya dipilih */}
             {selectedReason === 'Lainnya' && (
               <>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
@@ -191,21 +186,41 @@ export default function OpenDisputePage() {
                 <textarea
                   rows={4}
                   placeholder="Tuliskan detail kendala atau kronologi yang terjadi..."
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-700 placeholder-gray-400 outline-none focus:border-[#49BC9E] transition-colors resize-none"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-700 placeholder-gray-400 outline-none focus:border-[#49BC9E] transition-colors resize-none mb-4"
                   onChange={e => setReason(e.target.value)}
                 />
               </>
             )}
+
+            <div className="mt-4 pt-4 border-t border-gray-100">
+              <h3 className="text-sm font-semibold text-gray-700 mb-3">Informasi Rekening (untuk pencairan dana)</h3>
+              <div className="mb-3">
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Nama Bank</label>
+                <input
+                  placeholder="Contoh: BCA, BRI, Mandiri"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-700 placeholder-gray-400 outline-none focus:border-[#49BC9E] transition-colors"
+                  value={bankName}
+                  onChange={e => setBankName(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Nomor Rekening</label>
+                <input
+                  placeholder="Contoh: 1234567890"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-700 placeholder-gray-400 outline-none focus:border-[#49BC9E] transition-colors"
+                  value={bankAccount}
+                  onChange={e => setBankAccount(e.target.value)}
+                />
+              </div>
+            </div>
           </div>
 
-          {/* Error */}
           {error && (
             <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-4">
               <p className="text-red-600 text-sm">{error}</p>
             </div>
           )}
 
-          {/* Submit */}
           <div className="flex justify-end">
             <button
               onClick={handleSubmit}
