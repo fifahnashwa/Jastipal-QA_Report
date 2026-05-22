@@ -212,7 +212,7 @@ export default function MyRequestsPage() {
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
             <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
-          <span className="hidden sm:inline">Tambah Permintaan</span>
+          <span className="hidden sm:inline">Tambah Request</span>
           <span className="sm:hidden">Tambah</span>
         </button>
       </div>
@@ -260,14 +260,7 @@ export default function MyRequestsPage() {
               : tab === 'selesai' ? 'Belum ada request yang selesai'
               : 'Tidak ada request yang dibatalkan'}
           </p>
-          {tab === 'open' && (
-            <button
-              onClick={() => router.push('/requests/new')}
-              className="bg-[#49BC9E] hover:bg-[#3da88d] transition-colors text-white rounded-lg px-4 py-2 text-sm font-semibold"
-            >
-              Buat Request Pertama
-            </button>
-          )}
+          
         </div>
       ) : (
         <div className="space-y-3 sm:space-y-4">
