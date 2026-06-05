@@ -213,7 +213,7 @@ Fitur-fitur berikut masih ada dalam kode program namun tidak dapat diakses atau 
 ### 6.3 Isu UX & Tampilan
 
 | ID | Isu | Keterangan |
-|---|---|---|---|
+|---|---|---|
 | UX-01 | Pembatalan pesanan tanpa konfirmasi dialog | Tombol Batalkan langsung mengeksekusi pembatalan tanpa dialog konfirmasi |
 | UX-02 | Pencarian admin tidak menggunakan debounce | Kolom pencarian di halaman kelola pengguna memicu query ke database sejak karakter pertama diketik |
 
