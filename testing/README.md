@@ -42,6 +42,7 @@ Handler `/api/ipaymu/notify` menggunakan `request.json()` + field `orderId`, sem
 |---|---|
 | [`LAPORAN_PENGUJIAN.md`](./LAPORAN_PENGUJIAN.md) | Laporan pengujian lengkap: metodologi, hasil per modul, seluruh temuan bug & rekomendasi |
 | [`TEST_CASES.md`](./TEST_CASES.md) | Ringkasan & index 179 test case beserta status hasil eksekusi |
+| `Jastipal_TestCases.xlsx` | File spreadsheet asli berisi detail seluruh test case |
 
 ---
 
